@@ -1,6 +1,10 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
+import 'react-bootstrap/dist/react-bootstrap'
+import 'react-bootstrap/dist/react-bootstrap.min'
+import 'bootstrap/dist/css/bootstrap.min.css'
+import SearchBar from './components/SearchPage'
 
 function App() {
   return (
@@ -19,6 +23,7 @@ function App() {
           Learn React
         </a>
       </header>
+      <SearchBar/>.
     </div>
   );
 }
