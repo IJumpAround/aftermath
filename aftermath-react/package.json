@@ -1,6 +1,5 @@
 {
-  "homepage": "aftermath",
-  "name": "aftermath",
+  "name": "aftermath-react",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
