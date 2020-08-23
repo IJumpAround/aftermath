@@ -1,0 +1,11 @@
+[run]
+branch = True
+source=./
+omit=
+    */.github/*
+    */.idea/*
+    venv/*
+    manage.py
+    */__init__.py
+    */wsgi.py
+    */asgi.py
