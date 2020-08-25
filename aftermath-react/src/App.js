@@ -22,6 +22,10 @@ function App() {
         >
           Learn React
         </a>
+          <a className="App-link"
+          href="http://127.0.0.1:8000/admin"
+          target="_blank"
+          rel="noopener noreferrer">Admin</a>
       </header>
       <SearchBar/>.
     </div>
