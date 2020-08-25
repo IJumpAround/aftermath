@@ -28,7 +28,8 @@ class Rarity(models.Model):
 
 
 class Item(models.Model):
-    rarity = models.ForeignKey(Rarity, on_delete=models.SET_NULL)
+    rarity = models.ForeignKey(Rarity, on_delete=models.SET_NULL,
+                               null=True)
     item_type = models.CharField(max_length=50)  # ring, head, consumable
     wondrous = models.BooleanField(default=False)
     requires_attunement = models.BooleanField(default=False)
@@ -52,6 +53,10 @@ class Equippable(Item):
         abstract = True
 
 
+class Armor(Equippable):
+    pass
+
+
 class Weapon(Equippable):
     damage = models.TextField(35)
     range = models.TextField(30, default=None)
@@ -59,10 +64,13 @@ class Weapon(Equippable):
 
 
 class Trait(models.Model):
-    trait_name = models.CharField(30)
+    trait_name = models.CharField(max_length=30)
     trait_level = models.PositiveSmallIntegerField(null=True,
                                                    blank=True)
-    description = models.CharField(140)
+    description = models.CharField(max_length=140)
+    item = models.ForeignKey(Armor, on_delete=models.SET_NULL,
+                             null=True,
+                             default=None)
 
     class Meta:
         abstract = True
@@ -82,11 +90,16 @@ class WeaponTrait(Trait):
 
     weapon_type = models.CharField(blank=True,
                                    choices=WeaponType.choices,
-                                   max_length=1,
+                                   max_length=10,
                                    default=None)
 
 
 class Tier(models.Model):
     description = models.CharField(max_length=125)
     level = models.SmallIntegerField()
-    trait = models.ForeignKey(Trait, on_delete=models.DO_NOTHING)
+    weapon_trait = models.ForeignKey(WeaponTrait, on_delete=models.DO_NOTHING,
+                                     null=True,
+                                     default=True)
+    armor_trait = models.ForeignKey(ArmorTrait, on_delete=models.DO_NOTHING,
+                                    null=True,
+                                    default=None)
