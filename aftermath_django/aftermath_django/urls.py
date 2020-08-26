@@ -16,7 +16,25 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+# urlpatterns = [
+#     path('polls/', include('polls.urls')),
+#     path('admin/', admin.site.urls),
+#     path('inventory/', include('item_management.urls')),
+# ]
+from rest_framework import routers
+
+from item_management import views
+
+router = routers.DefaultRouter()
+router.register(r'users', views.UserViewSet)
+router.register(r'groups', views.GroupViewSet)
+router.register(r'players', views.PlayerViewSet)
+router.register(r'armor', views.ArmorViewSet)
+router.register(r'description', views.DescriptionViewSet)
+
+# Wire up our API using automatic URL routing.
+# Additionally, we include login URLs for the browsable API.
 urlpatterns = [
-    path('polls/', include('polls.urls')),
+    path('', include(router.urls)),
     path('admin/', admin.site.urls),
-]
+    path('api-auth/', include('rest_framework.urls', namespace='rest_framework'))]

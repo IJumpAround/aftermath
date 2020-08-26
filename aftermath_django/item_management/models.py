@@ -11,10 +11,24 @@ class Description(models.Model):
     text_description = models.TextField()
     lore = models.TextField()
 
+    def __str__(self):
+        return f"{self.name}\n" \
+               f"**{self.lore}**\n" \
+               f"{self.text_description}"
+
 
 class Player(models.Model):
     name = models.CharField(max_length=50)
-    attunement_slots = models.PositiveSmallIntegerField(validators=(MaxValueValidator(limit_value=3),))
+    attunement_slots = models.PositiveSmallIntegerField(validators=(MaxValueValidator(limit_value=3),),
+                                                        default=3,
+                                                        blank=True)
+
+    def get_items(self):
+        armor = Armor.objects.filter(player_id=self.id)
+        return armor
+
+    def __str__(self):
+        return self.name
     # Items
     # Effects
 
@@ -26,6 +40,9 @@ class ItemSlot(models.Model):
 class Rarity(models.Model):
     rarity_level = models.CharField(max_length=40)
 
+    def __str__(self):
+        return self.rarity_level
+
 
 class Item(models.Model):
     rarity = models.ForeignKey(Rarity, on_delete=models.SET_NULL,
@@ -34,6 +51,11 @@ class Item(models.Model):
     wondrous = models.BooleanField(default=False)
     requires_attunement = models.BooleanField(default=False)
     description = models.ForeignKey(Description, on_delete=models.CASCADE)
+
+    player = models.ForeignKey(Player,
+                               on_delete=models.SET_NULL,
+                               blank=True,
+                               null=True)
 
     class Meta:
         abstract = True
@@ -44,10 +66,6 @@ class Equippable(Item):
                                   on_delete=models.SET_NULL,
                                   blank=True,
                                   null=True)
-    player = models.ForeignKey(Player,
-                               on_delete=models.SET_NULL,
-                               blank=True,
-                               null=True)
 
     class Meta:
         abstract = True
@@ -56,6 +74,11 @@ class Equippable(Item):
 class Armor(Equippable):
     pass
 
+    class Meta:
+        verbose_name_plural = "Armor"
+
+    def __str__(self):
+        return self.description.name
 
 class Weapon(Equippable):
     damage = models.TextField(35)
