@@ -12,9 +12,7 @@ class Description(models.Model):
     lore = models.TextField()
 
     def __str__(self):
-        return f"{self.name}\n" \
-               f"**{self.lore}**\n" \
-               f"{self.text_description}"
+        return f"{self.name}"
 
 
 class Player(models.Model):
@@ -34,7 +32,10 @@ class Player(models.Model):
 
 
 class ItemSlot(models.Model):
-    slot_name = models.TextField(30)
+    slot_name = models.CharField(max_length=30)
+
+    def __str__(self):
+        return self.slot_name
 
 
 class Rarity(models.Model):
@@ -50,10 +51,9 @@ class Rarity(models.Model):
 class Item(models.Model):
     rarity = models.ForeignKey(Rarity, on_delete=models.SET_NULL,
                                null=True)
-    item_type = models.CharField(max_length=50)  # ring, head, consumable
     wondrous = models.BooleanField(default=False)
     requires_attunement = models.BooleanField(default=False)
-    description = models.ForeignKey(Description, on_delete=models.CASCADE)
+    description = models.OneToOneField(Description, on_delete=models.CASCADE)
 
     player = models.ForeignKey(Player,
                                on_delete=models.SET_NULL,
@@ -66,9 +66,7 @@ class Item(models.Model):
 
 class Equippable(Item):
     item_slot = models.ForeignKey(ItemSlot,
-                                  on_delete=models.SET_NULL,
-                                  blank=True,
-                                  null=True)
+                                  on_delete=models.PROTECT)
 
     class Meta:
         abstract = True
