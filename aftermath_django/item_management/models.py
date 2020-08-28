@@ -40,6 +40,9 @@ class ItemSlot(models.Model):
 class Rarity(models.Model):
     rarity_level = models.CharField(max_length=40)
 
+    class Meta:
+        verbose_name_plural = 'Rarities'
+
     def __str__(self):
         return self.rarity_level
 
@@ -80,10 +83,19 @@ class Armor(Equippable):
     def __str__(self):
         return self.description.name
 
+
 class Weapon(Equippable):
     damage = models.TextField(35)
     range = models.TextField(30, default=None)
     # Weapon mod
+
+
+class Tier(models.Model):
+    description = models.CharField(max_length=125)
+    level = models.SmallIntegerField(unique=True)
+
+    def __str__(self):
+        return f"Tier {self.level}: {self.description}"
 
 
 class Trait(models.Model):
@@ -94,6 +106,9 @@ class Trait(models.Model):
     item = models.ForeignKey(Armor, on_delete=models.SET_NULL,
                              null=True,
                              default=None)
+    tier = models.ForeignKey(Tier, on_delete=models.PROTECT,
+                             null=False,
+                             default=0)
 
     class Meta:
         abstract = True
@@ -104,7 +119,6 @@ class ArmorTrait(Trait):
 
 
 class WeaponTrait(Trait):
-
     class WeaponType(models.TextChoices):
         SPECIAL = 'Special'
         EITHER = 'Either'
@@ -116,13 +130,3 @@ class WeaponTrait(Trait):
                                    max_length=10,
                                    default=None)
 
-
-class Tier(models.Model):
-    description = models.CharField(max_length=125)
-    level = models.SmallIntegerField()
-    weapon_trait = models.ForeignKey(WeaponTrait, on_delete=models.DO_NOTHING,
-                                     null=True,
-                                     default=True)
-    armor_trait = models.ForeignKey(ArmorTrait, on_delete=models.DO_NOTHING,
-                                    null=True,
-                                    default=None)
