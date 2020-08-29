@@ -1,7 +1,12 @@
 from django.contrib.auth.models import User, Group
 from rest_framework import viewsets
 from rest_framework import permissions
-from .serializers import UserSerializer, GroupSerializer, PlayerSerializer, ArmorSerializer, DescriptionSerializer
+from rest_framework.decorators import api_view
+from rest_framework.request import Request
+from rest_framework.response import Response
+
+from .serializers import UserSerializer, GroupSerializer, PlayerSerializer, ArmorSerializer, \
+    RaritySerializer, ItemSlotSerializer
 from .models import *
 
 
@@ -17,7 +22,7 @@ class UserViewSet(viewsets.ModelViewSet):
     """
     queryset = User.objects.all().order_by('-date_joined')
     serializer_class = UserSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAdminUser]
 
 
 class GroupViewSet(viewsets.ModelViewSet):
@@ -35,7 +40,24 @@ class ArmorViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
 
-class DescriptionViewSet(viewsets.ModelViewSet):
-    queryset = Description.objects.all()
-    serializer_class = DescriptionSerializer
+class RarityViewSet(viewsets.ModelViewSet):
+    queryset = Rarity.objects.all()
+    serializer_class = RaritySerializer
     permission_classes = [permissions.IsAuthenticated]
+
+
+class ItemSlotViewSet(viewsets.ModelViewSet):
+    queryset = ItemSlot.objects.all()
+    serializer_class = ItemSlotSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+
+# class ItemViewSet(viewsets.ModelViewSet):
+#     queryset =  Item.
+
+# @api_view(http_method_names=['GET'])
+# def get_all_items(request):
+#
+#     # item_list = Item.objects.all()
+#     item_list = Weapon.objects.all()
+#     return item_list

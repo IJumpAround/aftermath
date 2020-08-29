@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Player, Weapon, WeaponTrait, Armor, ArmorTrait, ItemSlot, Rarity, Description, Tier
+from .models import Player, Weapon, WeaponTrait, Armor, ArmorTrait, ItemSlot, Rarity, Tier
 
 
 @admin.register(Armor)
@@ -11,8 +11,7 @@ class ArmorAdmin(admin.ModelAdmin):
         (None, {'fields': ['player']})
         # ('Date information', {'fields': ['pub_date']})
     ]
-    list_display = ('description', 'rarity', 'item_slot', 'requires_attunement', 'wondrous', 'player')
-    list_display_links = ('description',)
+    list_display = ('name', 'rarity', 'item_slot', 'requires_attunement', 'wondrous', 'player')
     list_editable = ('requires_attunement', 'wondrous', 'player',)
 
 
@@ -37,5 +36,4 @@ class WeaponAdmin(admin.ModelAdmin):
     fieldsets = ('Description', {'fields': ['description']}),
 
 admin.site.register(Player)
-admin.site.register(Description)
 admin.site.register(Rarity)

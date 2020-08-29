@@ -1,20 +1,6 @@
 from django.db import models
 from django.core.validators import MaxValueValidator
 
-
-class Description(models.Model):
-    """
-    Descriptive elements of an item including its name,
-    usage description, and flavor.
-    """
-    name = models.CharField(max_length=70)
-    text_description = models.TextField()
-    lore = models.TextField()
-
-    def __str__(self):
-        return f"{self.name}"
-
-
 class Player(models.Model):
     name = models.CharField(max_length=50)
     attunement_slots = models.PositiveSmallIntegerField(validators=(MaxValueValidator(limit_value=3),),
@@ -49,11 +35,13 @@ class Rarity(models.Model):
 
 
 class Item(models.Model):
+    name = models.CharField(max_length=70)
+    text_description = models.TextField()
+    lore = models.TextField(null=True)
     rarity = models.ForeignKey(Rarity, on_delete=models.SET_NULL,
                                null=True)
     wondrous = models.BooleanField(default=False)
     requires_attunement = models.BooleanField(default=False)
-    description = models.OneToOneField(Description, on_delete=models.CASCADE)
 
     player = models.ForeignKey(Player,
                                on_delete=models.SET_NULL,
