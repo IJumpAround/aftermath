@@ -125,3 +125,10 @@ class WeaponTrait(Trait):
                                    max_length=10,
                                    default=None)
 
+# Hold fields from different models which will be returned as a list of one object type
+class GenericItem(models.Model):
+
+    class Meta:
+        abstract = True
+        managed = False
+
