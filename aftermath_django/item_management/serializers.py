@@ -43,3 +43,9 @@ class ItemSlotSerializer(serializers.ModelSerializer):
     class Meta:
         model = ItemSlot
         fields = '__all__'
+
+
+class WeaponSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Weapon
+        fields = '__all__'

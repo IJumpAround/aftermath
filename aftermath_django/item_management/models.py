@@ -18,14 +18,21 @@ class Player(models.Model):
 
 
 class ItemSlot(models.Model):
+    class SlotTypeChoices(models.TextChoices):
+        WEAPON = 'Weapon'
+        ARMOR = 'Armor'
+        ACCESSORY = 'Accessory'
+
     slot_name = models.CharField(max_length=30)
+    slot_type = models.TextField(choices=SlotTypeChoices.choices)
 
     def __str__(self):
         return self.slot_name
 
 
 class Rarity(models.Model):
-    rarity_level = models.CharField(max_length=40)
+    rarity_level = models.CharField(max_length=40,
+                                    unique=True)
 
     class Meta:
         verbose_name_plural = 'Rarities'
@@ -37,9 +44,10 @@ class Rarity(models.Model):
 class Item(models.Model):
     name = models.CharField(max_length=70)
     text_description = models.TextField()
-    lore = models.TextField(null=True)
+    flavor = models.TextField(null=True)
     rarity = models.ForeignKey(Rarity, on_delete=models.SET_NULL,
-                               null=True)
+                               null=True,
+                               blank=True)
     wondrous = models.BooleanField(default=False)
     requires_attunement = models.BooleanField(default=False)
 
@@ -54,7 +62,7 @@ class Item(models.Model):
 
 class Equippable(Item):
     item_slot = models.ForeignKey(ItemSlot,
-                                  on_delete=models.PROTECT)
+                                  on_delete=models.DO_NOTHING)
 
     class Meta:
         abstract = True
@@ -67,17 +75,18 @@ class Armor(Equippable):
         verbose_name_plural = "Armor"
 
     def __str__(self):
-        return self.description.name
+        return self.name
 
 
 class Weapon(Equippable):
-    damage = models.TextField(35)
-    range = models.TextField(30, default=None)
-    # Weapon mod
+    pass
+
+    def __str__(self):
+        return self.name
 
 
 class Tier(models.Model):
-    description = models.CharField(max_length=125)
+    description = models.TextField(max_length=125)
     level = models.SmallIntegerField(unique=True)
 
     def __str__(self):

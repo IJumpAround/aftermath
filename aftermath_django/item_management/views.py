@@ -5,9 +5,12 @@ from rest_framework.decorators import api_view
 from rest_framework.request import Request
 from rest_framework.response import Response
 
+from django.utils.log import request_logger
+
 from .serializers import UserSerializer, GroupSerializer, PlayerSerializer, ArmorSerializer, \
-    RaritySerializer, ItemSlotSerializer
+    RaritySerializer, ItemSlotSerializer, WeaponSerializer
 from .models import *
+
 
 
 class PlayerViewSet(viewsets.ModelViewSet):
@@ -52,12 +55,13 @@ class ItemSlotViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
 
-# class ItemViewSet(viewsets.ModelViewSet):
-#     queryset =  Item.
+@api_view(http_method_names=['GET'])
+def get_all_items(request):
+    request_logger.info('get_all_items')
+    weapons = Weapon.objects.all().select_related()
+    armor = Armor.objects.all().select_related()
 
-# @api_view(http_method_names=['GET'])
-# def get_all_items(request):
-#
-#     # item_list = Item.objects.all()
-#     item_list = Weapon.objects.all()
-#     return item_list
+    armor_serializer = ArmorSerializer(armor, many=True)
+    weapon_serialzer = WeaponSerializer(weapons, many=True)
+    item_list = {'armor': armor_serializer.data, 'weapons': weapon_serialzer.data}
+    return Response(item_list, 200)

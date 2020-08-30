@@ -6,14 +6,14 @@ from .models import Player, Weapon, WeaponTrait, Armor, ArmorTrait, ItemSlot, Ra
 @admin.register(Armor)
 class ArmorAdmin(admin.ModelAdmin):
     fieldsets = [
-        ('Description', {'fields': ['description']}),
+        ('Description', {'fields': ['name', 'flavor', 'text_description']}),
         (None, {'fields': ['rarity']}),
-        (None, {'fields': ['player']})
+        (None, {'fields': ['player']}),
+        (None, {'fields': ['item_slot']})
         # ('Date information', {'fields': ['pub_date']})
     ]
     list_display = ('name', 'rarity', 'item_slot', 'requires_attunement', 'wondrous', 'player')
-    list_editable = ('requires_attunement', 'wondrous', 'player',)
-
+    list_editable = ('requires_attunement', 'wondrous', 'player','item_slot', 'rarity')
 
 @admin.register(Tier)
 class TierAdmin(admin.ModelAdmin):
@@ -28,12 +28,18 @@ class TierAdmin(admin.ModelAdmin):
 @admin.register(ItemSlot)
 class ItemSlotAdmin(admin.ModelAdmin):
     fieldsets = [
-        ('Slot', {'fields': ['slot_name']}),
+        ('Slot', {'fields': ['slot_name','slot_type']}),
     ]
+    list_display = ('slot_name', 'slot_type')
+
 
 @admin.register(Weapon)
 class WeaponAdmin(admin.ModelAdmin):
-    fieldsets = ('Description', {'fields': ['description']}),
+    fieldsets = [('Description', {'fields': ['name', 'flavor', 'text_description']}),
+                 ('Misc', {'fields': ['rarity', 'item_slot']}),
+                 ('Owner', {'fields': ['player']})
+                 ]
+
 
 admin.site.register(Player)
 admin.site.register(Rarity)
