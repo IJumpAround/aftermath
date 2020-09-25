@@ -1,5 +1,7 @@
 from django.db import models
 from django.core.validators import MaxValueValidator
+from rest_framework import serializers
+
 
 class Player(models.Model):
     name = models.CharField(max_length=50)
@@ -58,6 +60,18 @@ class Item(models.Model):
 
     class Meta:
         abstract = True
+
+    @classmethod
+    def get_serializer(cls):
+        class BaseSerializer(serializers.ModelSerializer):
+
+            class Meta:
+                model = cls
+                fields = '__all__'
+                depth = 1
+
+
+        return BaseSerializer
 
 
 class Equippable(Item):
@@ -124,11 +138,4 @@ class WeaponTrait(Trait):
                                    choices=WeaponType.choices,
                                    max_length=10,
                                    default=None)
-
-# Hold fields from different models which will be returned as a list of one object type
-class GenericItem(models.Model):
-
-    class Meta:
-        abstract = True
-        managed = False
 
