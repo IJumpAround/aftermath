@@ -4,11 +4,11 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from django.utils.log import request_logger
+from rest_framework.serializers import HyperlinkedModelSerializer
 
 from .serializers import UserSerializer, GroupSerializer, PlayerSerializer, ArmorSerializer, \
     RaritySerializer, ItemSlotSerializer, WeaponSerializer
 from .models import *
-
 
 
 class PlayerViewSet(viewsets.ModelViewSet):
@@ -53,13 +53,27 @@ class ItemSlotViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
 
+class WeaponViewSet(viewsets.ModelViewSet):
+    queryset = Weapon.objects.all()
+    serializer_class = WeaponSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+
 @api_view(http_method_names=['GET'])
 def get_all_items(request):
     request_logger.info('get_all_items')
-    weapons = Weapon.objects.all().select_related()
-    armor = Armor.objects.all().select_related()
 
-    armor_serializer = ArmorSerializer(armor, many=True)
-    weapon_serialzer = WeaponSerializer(weapons, many=True)
-    item_list = {'armor': armor_serializer.data, 'weapons': weapon_serialzer.data}
+    weapons = Weapon.objects.all() #.select_related()
+    armor = Armor.objects.all() #.select_related()
+
+
+    raw_items :[Item] = [weapons, armor]
+    items = []
+
+    for item in raw_items:
+        serializer_class : type(HyperlinkedModelSerializer) = item.model.get_serializer()
+        object_serializer: HyperlinkedModelSerializer = serializer_class(item, many=True, context = {'request': request})
+        items.append(object_serializer.data)
+
+    item_list = {'items':items}
     return Response(item_list, 200)
