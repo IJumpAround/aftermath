@@ -22,7 +22,7 @@ class PlayerSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Player
-        fields = ('name', 'weapon_set', 'armor_set')
+        fields = ('name', 'weapon_set', 'armor_set', 'copper', 'silver','electrum','gold','platinum')
 
 
 class ArmorSerializer(serializers.ModelSerializer):
@@ -30,7 +30,6 @@ class ArmorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Armor
         fields = '__all__'
-        depth = 2
 
 
 class RaritySerializer(serializers.ModelSerializer):

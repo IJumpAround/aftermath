@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.validators import MaxValueValidator
+from django.db.models import Count
 from rest_framework import serializers
 
 
@@ -8,6 +9,17 @@ class Player(models.Model):
     attunement_slots = models.PositiveSmallIntegerField(validators=(MaxValueValidator(limit_value=3),),
                                                         default=3,
                                                         blank=True)
+    copper = models.IntegerField(blank=False,
+                                 default=0)
+    silver = models.IntegerField(blank=False,
+                                 default=0)
+    electrum = models.IntegerField(blank=False,
+                                 default=0)
+    gold = models.IntegerField(blank=False,
+                                   default=0)
+    platinum = models.IntegerField(blank=False,
+                                   default=0)
+
 
     def get_items(self):
         armor = Armor.objects.filter(player_id=self.id)
@@ -57,6 +69,13 @@ class Item(models.Model):
                                on_delete=models.SET_NULL,
                                blank=True,
                                null=True)
+
+    def get_count(self):
+        count = Item.objects.filter(name__exact=self.name).aggregate(Count('name'))
+
+    def held_by_player(self, player_name):
+        count = Item.objects.filter(player__name=player_name).aggregate(Count('player_id'))
+        return count
 
     class Meta:
         abstract = True
@@ -138,4 +157,3 @@ class WeaponTrait(Trait):
                                    choices=WeaponType.choices,
                                    max_length=10,
                                    default=None)
-
