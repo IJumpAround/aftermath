@@ -58,6 +58,9 @@ class WeaponViewSet(viewsets.ModelViewSet):
     serializer_class = WeaponSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+class StackableViewSet(viewsets.ModelViewSet):
+    queryset = Stackable.count_group_by_players()
+
 
 @api_view(http_method_names=['GET'])
 def get_all_items(request):

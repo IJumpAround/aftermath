@@ -1,6 +1,6 @@
 from django.db import models
 from django.core.validators import MaxValueValidator
-from django.db.models import Count
+from django.db.models import Count, Q
 from rest_framework import serializers
 
 
@@ -70,12 +70,6 @@ class Item(models.Model):
                                blank=True,
                                null=True)
 
-    def get_count(self):
-        count = Item.objects.filter(name__exact=self.name).aggregate(Count('name'))
-
-    def held_by_player(self, player_name):
-        count = Item.objects.filter(player__name=player_name).aggregate(Count('player_id'))
-        return count
 
     class Meta:
         abstract = True
@@ -91,6 +85,25 @@ class Item(models.Model):
 
 
         return BaseSerializer
+
+
+class Stackable(Item):
+    # Potion, Arrows, bolts, etc
+    stackable_type = models.CharField(blank=False,
+                                      max_length=45)
+    @classmethod
+    def count_group_by_players(cls):
+        counts = Item.objects.values('player_id').annotate(total=Count('id'))
+
+    @classmethod
+    def count_for_by_player(cls, player_name) -> int:
+        count = Item.objects.filter(player__name=player_name).count()
+        return count
+
+    @classmethod
+    def count_available(cls) -> int:
+        count = Item.objects.filter(Q(player__name=None) | Q(player__name="Party")).count()
+        return count
 
 
 class Equippable(Item):
