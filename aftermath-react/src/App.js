@@ -26,7 +26,7 @@ class App extends Component {
         }
 
         console.log(response)
-       this.test = response.data
+        this.test = response.data
     }
 
     render() {
