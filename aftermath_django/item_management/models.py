@@ -1,6 +1,6 @@
 from django.db import models
 from django.core.validators import MaxValueValidator
-from django.db.models import Count, Q
+from django.db.models import Count, Q, F
 from rest_framework import serializers
 
 
@@ -91,19 +91,36 @@ class Stackable(Item):
     # Potion, Arrows, bolts, etc
     stackable_type = models.CharField(blank=False,
                                       max_length=45)
+    quantity = models.IntegerField(default=0)
     @classmethod
     def count_group_by_players(cls):
-        counts = Item.objects.values('player_id').annotate(total=Count('id'))
-
+        counts = Stackable.objects.values('player_id').annotate(total=Count('id'))
+        return counts
     @classmethod
     def count_for_by_player(cls, player_name) -> int:
-        count = Item.objects.filter(player__name=player_name).count()
+        count = Stackable.objects.filter(player__name=player_name).count()
         return count
 
     @classmethod
-    def count_available(cls) -> int:
-        count = Item.objects.filter(Q(player__name=None) | Q(player__name="Party")).count()
+    def count_unclaimed(cls) -> int:
+        item = Stackable.objects.get(Q(player__name=None) | Q(player__name="Party"))
+        count = item.quantity
         return count
+
+
+    def split(self, player_name, amount):
+        new_owner = Player.objects.filter(name__exact=player_name)
+
+        if self.quantity > amount > 0 and new_owner:
+            self.quantity = F('quantity') - amount
+            self.save()
+            self.refresh_from_db()
+
+            new_stack = Stackable.objects.get(pk=self.id)
+            new_stack.id = None
+            new_stack.quantity = amount
+            new_stack.save()
+            return new_stack
 
 
 class Equippable(Item):

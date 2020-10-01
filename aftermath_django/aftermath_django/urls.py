@@ -31,6 +31,7 @@ router.register(r'groups', views.GroupViewSet)
 router.register(r'itemslots', views.ItemSlotViewSet)
 router.register(r'players', views.PlayerViewSet)
 router.register(r'rarity', views.RarityViewSet)
+router.register(r'stackables', views.StackableViewSet)
 router.register(r'users', views.UserViewSet)
 router.register(r'weapons', views.WeaponViewSet)
 
