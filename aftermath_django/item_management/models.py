@@ -1,3 +1,5 @@
+from typing import Optional
+
 from django.db import models
 from django.core.validators import MaxValueValidator
 from django.db.models import Count, Q, ObjectDoesNotExist
@@ -108,19 +110,19 @@ class Stackable(Item):
         return count
 
     def transfer_to_party(self, amount):
-        return self._transfer(player_name=None, amount=amount)
+        return self._transfer(player=None, amount=amount)
 
-    def transfer_to_player(self, player_name, amount):
-        return self._transfer(player_name, amount)
+    def transfer_to_player(self, player: Optional[Player], amount):
+        return self._transfer(player, amount)
 
-    def _transfer(self, player_name, amount) -> 'Stackable':
+    def _transfer(self, player, amount) -> 'Stackable':
         """
         Transfer some quantity of a stack of items to a new owner
         Transferring all items in a stack will result in deletion of the source stack
         Transferring items to an existing stack will not update existing object references, as such you should either
             assign the result of this call to the target object, or call refresh_from_db on the target Stackable
         Args:
-            player_name: Recipient of transfer.
+            player: Recipient of transfer.
                          Provide None to transfer to the party
             amount: Number of items to transfer to the target player
 
@@ -129,8 +131,8 @@ class Stackable(Item):
 
         """
         new_owner_id = None
-        if player_name:
-            new_owner_id = Player.objects.get(name__exact=player_name).id
+        if player:
+            new_owner_id = Player.objects.get(name__exact=player).id
 
         if  amount > 0:
             if amount >= self.quantity:
@@ -145,7 +147,7 @@ class Stackable(Item):
                 self.save()
 
             try:
-                target_stack = Stackable.objects.get(player_id=new_owner_id)
+                target_stack = Stackable.objects.get(player_id=new_owner_id, name=self.name)
             except ObjectDoesNotExist as e:
                 target_stack = Stackable.objects.create(player_id=new_owner_id)
 
