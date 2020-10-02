@@ -1,6 +1,6 @@
 from django.db import models
 from django.core.validators import MaxValueValidator
-from django.db.models import Count, Q, F
+from django.db.models import Count, Q, ObjectDoesNotExist
 from rest_framework import serializers
 
 
@@ -107,20 +107,52 @@ class Stackable(Item):
         count = item.quantity
         return count
 
+    def transfer_to_party(self, amount):
+        return self._transfer(player_name=None, amount=amount)
 
-    def split(self, player_name, amount):
-        new_owner = Player.objects.filter(name__exact=player_name)
+    def transfer_to_player(self, player_name, amount):
+        return self._transfer(player_name, amount)
 
-        if self.quantity > amount > 0 and new_owner:
-            self.quantity = F('quantity') - amount
-            self.save()
-            self.refresh_from_db()
+    def _transfer(self, player_name, amount) -> 'Stackable':
+        """
+        Transfer some quantity of a stack of items to a new owner
+        Transferring all items in a stack will result in deletion of the source stack
+        Transferring items to an existing stack will not update existing object references, as such you should either
+            assign the result of this call to the target object, or call refresh_from_db on the target Stackable
+        Args:
+            player_name: Recipient of transfer.
+                         Provide None to transfer to the party
+            amount: Number of items to transfer to the target player
 
-            new_stack = Stackable.objects.get(pk=self.id)
-            new_stack.id = None
-            new_stack.quantity = amount
-            new_stack.save()
-            return new_stack
+        Returns: The newly created Stackable object owned by player_name
+
+
+        """
+        new_owner_id = None
+        if player_name:
+            new_owner_id = Player.objects.get(name__exact=player_name).id
+
+        if  amount > 0:
+            if amount >= self.quantity:
+                actual_amount = self.quantity
+            else:
+                actual_amount = amount
+
+            self.quantity -= actual_amount
+            if self.quantity == 0:
+                self.delete()
+            else:
+                self.save()
+
+            try:
+                target_stack = Stackable.objects.get(player_id=new_owner_id)
+            except ObjectDoesNotExist as e:
+                target_stack = Stackable.objects.create(player_id=new_owner_id)
+
+            target_stack.quantity += actual_amount
+            target_stack.save()
+            target_stack.refresh_from_db()
+            return target_stack
 
 
 class Equippable(Item):
