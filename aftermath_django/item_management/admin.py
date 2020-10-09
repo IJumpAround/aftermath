@@ -28,9 +28,8 @@ class TierAdmin(admin.ModelAdmin):
 @admin.register(ItemSlot)
 class ItemSlotAdmin(admin.ModelAdmin):
     fieldsets = [
-        ('Slot', {'fields': ['slot_name','slot_type']}),
+        ('Slot', {'fields': ['slot_name']}),
     ]
-    list_display = ('slot_name', 'slot_type')
 
 
 @admin.register(Weapon)

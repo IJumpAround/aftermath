@@ -32,32 +32,28 @@ class Player(models.Model):
     # Items
     # Effects
 
-
 class ItemSlot(models.Model):
-    class SlotTypeChoices(models.TextChoices):
-        WEAPON = 'Weapon'
-        ARMOR = 'Armor'
-        ACCESSORY = 'Accessory'
-
-    slot_name = models.CharField(max_length=30)
-    slot_type = models.TextField(choices=SlotTypeChoices.choices)
+    slot_name = models.CharField(max_length=40, primary_key=True)
 
     def __str__(self):
         return self.slot_name
 
 
 class Rarity(models.Model):
-    rarity_level = models.CharField(max_length=40,
-                                    unique=True)
-
     class Meta:
         verbose_name_plural = 'Rarities'
+
+    rarity_level = models.CharField(max_length=40,
+                                    unique=True)
 
     def __str__(self):
         return self.rarity_level
 
 
 class Item(models.Model):
+    class Meta:
+        abstract = True
+
     name = models.CharField(max_length=70)
     text_description = models.TextField()
     flavor = models.TextField(null=True)
@@ -73,9 +69,6 @@ class Item(models.Model):
                                null=True)
 
 
-    class Meta:
-        abstract = True
-
     @classmethod
     def get_serializer(cls):
         class BaseSerializer(serializers.ModelSerializer):
@@ -84,7 +77,6 @@ class Item(models.Model):
                 model = cls
                 fields = '__all__'
                 depth = 1
-
 
         return BaseSerializer
 
@@ -148,7 +140,7 @@ class Stackable(Item):
 
             try:
                 target_stack = Stackable.objects.get(player_id=new_owner_id, name=self.name)
-            except ObjectDoesNotExist as e:
+            except ObjectDoesNotExist:
                 target_stack = Stackable.objects.create(player_id=new_owner_id)
 
             target_stack.quantity += actual_amount

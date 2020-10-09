@@ -7,7 +7,7 @@ from django.utils.log import request_logger
 from rest_framework.serializers import HyperlinkedModelSerializer
 
 from .serializers import UserSerializer, GroupSerializer, PlayerSerializer, ArmorSerializer, \
-    RaritySerializer, ItemSlotSerializer, WeaponSerializer
+    RaritySerializer, ItemSlotSerializer, WeaponSerializer, StackableSerializer
 from .models import *
 
 
@@ -59,7 +59,9 @@ class WeaponViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
 class StackableViewSet(viewsets.ModelViewSet):
-    queryset = Stackable.count_group_by_players()
+    queryset = Stackable.objects.all()
+    serializer_class = StackableSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
 
 @api_view(http_method_names=['GET'])
@@ -68,9 +70,9 @@ def get_all_items(request):
 
     weapons = Weapon.objects.all() #.select_related()
     armor = Armor.objects.all() #.select_related()
+    stacks = Stackable.objects.all()
 
-
-    raw_items :[Item] = [weapons, armor]
+    raw_items :[Item] = [weapons, armor, stacks]
     items = []
 
     for item in raw_items:

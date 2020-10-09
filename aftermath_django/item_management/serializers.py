@@ -1,8 +1,7 @@
 from django.contrib.auth.models import User, Group
 from rest_framework import serializers
-from rest_framework.relations import PrimaryKeyRelatedField
 
-from .models import Player, Armor, Rarity, Tier, ArmorTrait, WeaponTrait, Weapon, ItemSlot, Item
+from .models import Player, Armor, Rarity, Tier, ArmorTrait, WeaponTrait, Weapon, ItemSlot, Item, Stackable
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
@@ -47,4 +46,11 @@ class ItemSlotSerializer(serializers.ModelSerializer):
 class WeaponSerializer(serializers.ModelSerializer):
     class Meta:
         model = Weapon
+        depth = 1
         fields = '__all__'
+
+class StackableSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Stackable
+        depth = 1
+        fields = ('id', 'name', 'text_description', 'stackable_type', 'rarity', 'quantity', 'player')
