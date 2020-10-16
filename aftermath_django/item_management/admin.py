@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Player, Weapon, WeaponTrait, Armor, ArmorTrait, ItemSlot, Rarity, Tier
+from .models import Player, Weapon, WeaponTrait, Armor, ArmorTrait, ItemSlot, Rarity, Tier, Stackable
 
 
 @admin.register(Armor)
@@ -39,6 +39,24 @@ class WeaponAdmin(admin.ModelAdmin):
                  ('Owner', {'fields': ['player']})
                  ]
 
+@admin.register(Stackable)
+class StackableAdmin(admin.ModelAdmin):
+    fieldsets = [('Description', {'fields': ['name', 'text_description', 'stackable_type']}),
+                 ('Owner', {'fields': ['player', 'quantity']})
+                 ]
+
+@admin.register(WeaponTrait)
+class WeaponTraitAdmin(admin.ModelAdmin):
+    fieldsets = [('Description', {'fields': ['trait_name', 'description', 'trait_level']}),
+                 (None, {'fields': ['tier', 'weapon_type']}),
+                 (None, {'fields': ['item']})]
+
+@admin.register(ArmorTrait)
+class ArmorTraitAdmin(admin.ModelAdmin):
+    fieldsets = [('Description', {'fields': ['trait_name', 'description', 'trait_level']}),
+                 (None, {'fields': ['tier']}),
+                 (None, {'fields': ['item']})
+                  ]
 
 admin.site.register(Player)
 admin.site.register(Rarity)

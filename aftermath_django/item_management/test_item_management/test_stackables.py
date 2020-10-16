@@ -15,12 +15,18 @@ class StackableModelTest(TestCase):
         self.player = Player.objects.create(name="Nick")
         super().setUp()
 
-
-    def create_potions(self, owner: Optional[Player], amount):
+    @classmethod
+    def create_potions(cls, owner: Optional[Player], amount):
+        if owner == None:
+            owner = Player.objects.get(name__exact="Party")
         player_id = owner.id if owner else None
         return Stackable.objects.create(stackable_type=POTION_TYPE, name=POTION_NAME, quantity=amount, player_id=player_id)
 
-    def create_arrows(self, owner: Optional[Player], amount):
+    @classmethod
+    def create_arrows(cls, owner: Optional[Player], amount):
+
+        if owner == None:
+            owner = Player.objects.get(name__exact="Party")
         player_id = owner.id if owner else None
         return Stackable.objects.create(stackable_type=ARROW_TYPE, name=ARROW_NAME, quantity=amount,
                                         player_id=player_id)
@@ -75,9 +81,9 @@ class StackableModelTest(TestCase):
         loose_potions = nicks_potions.transfer_to_party(5)
         nicks_arrows = loose_arrows.transfer_to_player(self.player, 27)
 
-        self.assertEqual(45, Stackable.objects.get(name=POTION_NAME, player__name=None).quantity)
+        self.assertEqual(45, Stackable.objects.get(name=POTION_NAME, player__name="Party").quantity)
         self.assertEqual(5, Stackable.objects.get(name=POTION_NAME, player__name=self.player.name).quantity)
-        self.assertEqual(24, Stackable.objects.get(name=ARROW_NAME, player__name=None).quantity)
+        self.assertEqual(24, Stackable.objects.get(name=ARROW_NAME, player__name="Party").quantity)
         self.assertEqual(30, Stackable.objects.get(name=ARROW_NAME, player__name=self.player).quantity)
         self.assertEqual(4, len(Stackable.objects.all()))
 

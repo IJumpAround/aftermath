@@ -7,7 +7,7 @@ from rest_framework import serializers
 
 
 class Player(models.Model):
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, unique=True)
     attunement_slots = models.PositiveSmallIntegerField(validators=(MaxValueValidator(limit_value=3),),
                                                         default=3,
                                                         blank=True)
@@ -22,6 +22,14 @@ class Player(models.Model):
     platinum = models.IntegerField(blank=False,
                                    default=0)
 
+    @classmethod
+    def get_party(cls):
+        return cls.objects.get(name="Party")
+
+    @classmethod
+    def get_default(cls):
+        party = cls.objects.get_or_create(name="Party", defaults={'name':"Party"})
+        return party[0].pk
 
     def get_items(self):
         armor = Armor.objects.filter(player_id=self.id)
@@ -64,9 +72,10 @@ class Item(models.Model):
     requires_attunement = models.BooleanField(default=False)
 
     player = models.ForeignKey(Player,
-                               on_delete=models.SET_NULL,
-                               blank=True,
-                               null=True)
+                               on_delete=models.PROTECT,
+                               default=Player.get_default,
+                               blank=False,
+                               null=False)
 
 
     @classmethod
@@ -97,12 +106,13 @@ class Stackable(Item):
 
     @classmethod
     def count_unclaimed(cls) -> int:
-        item = Stackable.objects.get(Q(player__name=None) | Q(player__name="Party"))
+        item = Stackable.objects.get(Q(player__name="Party"))
         count = item.quantity
         return count
 
     def transfer_to_party(self, amount):
-        return self._transfer(player=None, amount=amount)
+        party = Player.objects.get(name="Party")
+        return self._transfer(player=party, amount=amount)
 
     def transfer_to_player(self, player: Optional[Player], amount):
         return self._transfer(player, amount)
@@ -147,6 +157,8 @@ class Stackable(Item):
             target_stack.save()
             target_stack.refresh_from_db()
             return target_stack
+    def __str__(self):
+        return f"{self.name} x {self.quantity}: {self.player}"
 
 
 class Equippable(Item):
@@ -187,9 +199,7 @@ class Trait(models.Model):
     trait_level = models.PositiveSmallIntegerField(null=True,
                                                    blank=True)
     description = models.CharField(max_length=140)
-    item = models.ForeignKey(Armor, on_delete=models.SET_NULL,
-                             null=True,
-                             default=None)
+
     tier = models.ForeignKey(Tier, on_delete=models.PROTECT,
                              null=False,
                              default=0)
@@ -197,9 +207,20 @@ class Trait(models.Model):
     class Meta:
         abstract = True
 
+    def __str__(self):
+        trait_name = self.trait_name
+        if "(X)" in trait_name:
+            trait_name = f'{trait_name[:trait_name.index("(X)")]} ({self.trait_level})'
+        return f"{trait_name}"
 
 class ArmorTrait(Trait):
-    pass
+    item = models.ForeignKey(Armor, on_delete=models.SET_NULL,
+                             null=True,
+                             blank=True,
+                             default=None)
+
+    def __str__(self):
+        return f"{super().__str__()} on {self.item}"
 
 
 class WeaponTrait(Trait):
@@ -213,3 +234,10 @@ class WeaponTrait(Trait):
                                    choices=WeaponType.choices,
                                    max_length=10,
                                    default=None)
+
+    item = models.ForeignKey(Weapon, on_delete=models.SET_NULL,
+                             null=True,
+                             blank=True,
+                             default=None)
+    def __str__(self):
+        return f"{super().__str__()} on {self.item}"
