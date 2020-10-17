@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from copy import deepcopy
+import re
 from typing import Optional, Union
 
 from django.db import models
@@ -208,8 +208,6 @@ class TraitTemplate(models.Model):
                              null=False)
 
 
-
-
     def __str__(self):
         trait_name = self.trait_name
         return trait_name
@@ -219,9 +217,17 @@ class TraitInstanceBase(models.Model):
     template = models.ForeignKey(TraitTemplate, on_delete=models.CASCADE)
     x_value = models.PositiveSmallIntegerField(null=True,
                                                blank=True)
+
+    regex = re.compile('\(.*(X).*\)')
     class Meta:
         abstract = True
 
+    def __str__(self):
+        trait_name = self.template.trait_name
+        if self.template.scaling_trait:
+            match = self.regex.search(self.template.trait_name)
+            trait_name = f'{trait_name[:match.start(1)]}{self.x_value}{trait_name[match.end(1):]}'
+        return trait_name
 
 class ArmorTrait(TraitInstanceBase):
     item = models.ForeignKey(Armor, on_delete=models.SET_NULL,
