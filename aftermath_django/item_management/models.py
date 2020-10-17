@@ -196,21 +196,27 @@ class Tier(models.Model):
 
 class Trait(models.Model):
     trait_name = models.CharField(max_length=30)
-    trait_level = models.PositiveSmallIntegerField(null=True,
-                                                   blank=True)
+    x_value = models.PositiveSmallIntegerField(null=True,
+                                               blank=True)
     description = models.CharField(max_length=140)
 
-    tier = models.ForeignKey(Tier, on_delete=models.PROTECT,
+    tier = models.ForeignKey(Tier,
+                             on_delete=models.PROTECT,
                              null=False,
                              default=0)
 
+    # Only x scalable traits will be templates
+    is_template = models.BooleanField(default=False,
+                                      null=False,
+                                      blank=False
+                                      )
     class Meta:
         abstract = True
 
     def __str__(self):
         trait_name = self.trait_name
         if "(X)" in trait_name:
-            trait_name = f'{trait_name[:trait_name.index("(X)")]} ({self.trait_level})'
+            trait_name = f'{trait_name[:trait_name.index("(X)")]} ({self.x_value})'
         return f"{trait_name}"
 
 class ArmorTrait(Trait):
