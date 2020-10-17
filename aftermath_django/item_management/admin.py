@@ -47,13 +47,13 @@ class StackableAdmin(admin.ModelAdmin):
 
 @admin.register(WeaponTrait)
 class WeaponTraitAdmin(admin.ModelAdmin):
-    fieldsets = [('Description', {'fields': ['trait_name', 'description', 'trait_level']}),
+    fieldsets = [('Description', {'fields': ['trait_name', 'description', 'x_value', 'is_template']}),
                  (None, {'fields': ['tier', 'weapon_type']}),
                  (None, {'fields': ['item']})]
 
 @admin.register(ArmorTrait)
 class ArmorTraitAdmin(admin.ModelAdmin):
-    fieldsets = [('Description', {'fields': ['trait_name', 'description', 'trait_level']}),
+    fieldsets = [('Description', {'fields': ['trait_name', 'description', 'x_value', 'is_template']}),
                  (None, {'fields': ['tier']}),
                  (None, {'fields': ['item']})
                   ]

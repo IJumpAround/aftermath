@@ -236,12 +236,14 @@ class WeaponTrait(Trait):
         MELEE = 'Melee'
         RANGED = 'RANGED'
 
+
+
     weapon_type = models.CharField(blank=True,
                                    choices=WeaponType.choices,
                                    max_length=10,
                                    default=None)
 
-    item = models.ForeignKey(Weapon, on_delete=models.SET_NULL,
+    item = models.ForeignKey(Weapon, on_delete=models.CASCADE,
                              null=True,
                              blank=True,
                              default=None)
