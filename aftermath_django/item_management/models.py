@@ -197,71 +197,57 @@ class Tier(models.Model):
         return f"Tier {self.level}: {self.description}"
 
 
-class Trait(models.Model):
+class TraitTemplate(models.Model):
     trait_name = models.CharField(max_length=30)
-    x_value = models.PositiveSmallIntegerField(null=True,
-                                               blank=True)
+    scaling_trait = models.BooleanField(blank=False,
+                                        null=False)
     description = models.CharField(max_length=140)
 
     tier = models.ForeignKey(Tier,
                              on_delete=models.PROTECT,
-                             null=False,
-                             default=0)
+                             null=False)
 
-    # Only x scalable traits will be templates
-    is_template = models.BooleanField(default=False,
-                                      null=False,
-                                      blank=False
-                                      )
 
-    #@classmethod
 
-    @classmethod
-    def _create_trait_from_template(cls, trait: Union[WeaponTrait, ArmorTrait, int], item: Union[int, Item], x_value: int=None) -> Union[WeaponTrait, ArmorTrait]:
-        if isinstance(trait, int):
-            trait = cls.objects.get(tier_id=id)
-
-        if isinstance(item, Item):
-            item = item.id
-
-        trait = deepcopy(trait)
-        trait.is_template = False
-        trait.x_value = x_value
-        trait.item_id  = item
-        trait.id = None
-
-        return trait
-
-    @classmethod
-    def get_templates(cls):
-        return cls.objects.filter(is_template=True)
-
-    class Meta:
-        abstract = True
 
     def __str__(self):
         trait_name = self.trait_name
-        if "(X)" in trait_name:
-            trait_name = f'{trait_name[:trait_name.index("(X)")]} ({self.x_value})'
-        return f"{trait_name}"
+        return trait_name
 
-class ArmorTrait(Trait):
+
+class TraitInstanceBase(models.Model):
+    template = models.ForeignKey(TraitTemplate, on_delete=models.CASCADE)
+    x_value = models.PositiveSmallIntegerField(null=True,
+                                               blank=True)
+    class Meta:
+        abstract = True
+
+
+class ArmorTrait(TraitInstanceBase):
     item = models.ForeignKey(Armor, on_delete=models.SET_NULL,
                              null=True,
                              blank=True,
                              default=None)
 
     @classmethod
-    def create_trait_from_template(cls, trait: Union[WeaponTrait, ArmorTrait, int], item: Union[int, Item], x_value: int=None) ->ArmorTrait:
-        new_trait = super()._create_trait_from_template(trait, item, x_value)
+    def create_trait_from_template(cls, template: Union[TraitTemplate, int], item: Union[int, Item], x_value: int=None) ->ArmorTrait:
+        if isinstance(template, int):
+            template = TraitTemplate.objects.get(id=template)
 
+        if isinstance(item, Item):
+            item = item.id
+
+        if not template.scaling_trait:
+            x_value = None
+
+        new_trait = cls.objects.create(template=template, item_id=item, x_value=x_value)
         return new_trait
 
     def __str__(self):
         return f"{super().__str__()} on {self.item}"
 
 
-class WeaponTrait(Trait):
+class WeaponTrait(TraitInstanceBase):
     class WeaponType(models.TextChoices):
         SPECIAL = 'Special'
         EITHER = 'Either'
@@ -281,12 +267,20 @@ class WeaponTrait(Trait):
                              default=None)
 
     @classmethod
-    def create_trait_from_template(cls, trait: Union[WeaponTrait, ArmorTrait, int], item: Union[int, Item], weapon_type, x_value: int=None) -> WeaponTrait:
-        new_trait = super()._create_trait_from_template(trait, item, x_value=x_value)
+    def create_trait_from_template(cls, template: Union[TraitTemplate, int], item: Union[int, Item], weapon_type, x_value: int=None) -> WeaponTrait:
+        if isinstance(template, int):
+            template = TraitTemplate.objects.get(id=template)
 
-        new_trait.weapon_type = weapon_type
+        if isinstance(item, Item):
+            item = item.id
 
-        return new_trait
+        if not template.scaling_trait:
+            x_value = None
+
+        trait = cls.objects.create(template=template, weapon_type=weapon_type, x_value=x_value, item_id=item)
+
+        return trait
+
 
 
 
