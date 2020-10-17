@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.forms import model_to_dict
 from django.test import TestCase
@@ -24,11 +25,9 @@ class TraitModelTests(TestCase):
         armor_piercing_instance = WeaponTrait.create_trait_from_template(armor_piercing_template, self.weapon, weapon_type='Melee', x_value=x_val)
 
 
-        self.assertNotEqual(armor_piercing_template.id, armor_piercing_instance.id)
         self.assertEqual(armor_piercing_template.trait_name, armor_piercing_instance.template.trait_name)
         self.assertEqual(armor_piercing_instance.item, self.weapon)
 
-        self.assertEqual(x_val, armor_piercing_instance.x_value)
         self.assertNotIsInstance(armor_piercing_instance, TraitTemplate)
         self.assertEqual(armor_piercing_instance.template, armor_piercing_template)
 
@@ -36,7 +35,6 @@ class TraitModelTests(TestCase):
         x_value = 1
         armor_trait = ArmorTrait.create_trait_from_template(self.armor_template, self.armor, x_value=x_value)
 
-        self.assertNotEqual(self.armor_template.id, armor_trait.id)
         self.assertEqual(self.armor_template.trait_name, armor_trait.template.trait_name)
         self.assertEqual(armor_trait.item, self.armor)
 
@@ -62,11 +60,18 @@ class TraitModelTests(TestCase):
             template = TraitTemplate.objects.create(trait_name="Trait", scaling_trait=False, tier=self.tier)
 
 
+    def test_scalable_requires_x_value(self):
+        with self.assertRaises(ValidationError):
+            armor_trait = self.armor_template.create_trait_from_template(item=self.weapon)
+
     def test_trait_creation_from_template_classmethod(self):
         armor_trait = self.armor_template.create_trait_from_template(item=self.weapon, x_value=3)
+        weapon_trait = self.weapon_template.create_trait_from_template(item=self.armor, x_value=2, weapon_type='Melee')
 
-        self.assertNotEqual(self.armor_template.id, armor_trait.id)
         self.assertEqual(self.armor_template.trait_name, armor_trait.template.trait_name)
         self.assertEqual(armor_trait.item, self.armor)
+
+        self.assertEqual(self.weapon_template.trait_name, weapon_trait.template.trait_name)
+        self.assertEqual(weapon_trait.item, self.weapon)
 
 
