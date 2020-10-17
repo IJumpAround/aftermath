@@ -1,4 +1,7 @@
-from typing import Optional
+from __future__ import annotations
+
+from copy import deepcopy
+from typing import Optional, Union
 
 from django.db import models
 from django.core.validators import MaxValueValidator
@@ -210,6 +213,29 @@ class Trait(models.Model):
                                       null=False,
                                       blank=False
                                       )
+
+    #@classmethod
+
+    @classmethod
+    def _create_trait_from_template(cls, trait: Union[WeaponTrait, ArmorTrait, int], item: Union[int, Item], x_value: int=None) -> Union[WeaponTrait, ArmorTrait]:
+        if isinstance(trait, int):
+            trait = cls.objects.get(tier_id=id)
+
+        if isinstance(item, Item):
+            item = item.id
+
+        trait = deepcopy(trait)
+        trait.is_template = False
+        trait.x_value = x_value
+        trait.item_id  = item
+        trait.id = None
+
+        return trait
+
+    @classmethod
+    def get_templates(cls):
+        return cls.objects.filter(is_template=True)
+
     class Meta:
         abstract = True
 
@@ -224,6 +250,12 @@ class ArmorTrait(Trait):
                              null=True,
                              blank=True,
                              default=None)
+
+    @classmethod
+    def create_trait_from_template(cls, trait: Union[WeaponTrait, ArmorTrait, int], item: Union[int, Item], x_value: int=None) ->ArmorTrait:
+        new_trait = super()._create_trait_from_template(trait, item, x_value)
+
+        return new_trait
 
     def __str__(self):
         return f"{super().__str__()} on {self.item}"
@@ -247,5 +279,16 @@ class WeaponTrait(Trait):
                              null=True,
                              blank=True,
                              default=None)
+
+    @classmethod
+    def create_trait_from_template(cls, trait: Union[WeaponTrait, ArmorTrait, int], item: Union[int, Item], weapon_type, x_value: int=None) -> WeaponTrait:
+        new_trait = super()._create_trait_from_template(trait, item, x_value=x_value)
+
+        new_trait.weapon_type = weapon_type
+
+        return new_trait
+
+
+
     def __str__(self):
         return f"{super().__str__()} on {self.item}"
