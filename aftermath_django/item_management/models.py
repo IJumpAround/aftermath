@@ -6,6 +6,7 @@ from typing import Optional, Union
 from django.db import models
 from django.core.validators import MaxValueValidator
 from django.db.models import Count, Q, ObjectDoesNotExist
+from django.core.exceptions import ValidationError
 from rest_framework import serializers
 
 
@@ -197,6 +198,9 @@ class Tier(models.Model):
         return f"Tier {self.level}: {self.description}"
 
 
+class TraitType(models.TextChoices):
+    WEAPON = 'Weapon'
+    ARMOR = 'Armor'
 class TraitTemplate(models.Model):
     trait_name = models.CharField(max_length=30)
     scaling_trait = models.BooleanField(blank=False,
@@ -207,6 +211,20 @@ class TraitTemplate(models.Model):
                              on_delete=models.PROTECT,
                              null=False)
 
+    trait_type = models.CharField(choices=TraitType.choices,
+                                  max_length=6)
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+            name="%(app_label)s_%(class)s_trait_type_valid",
+            check=models.Q(trait_type__in=TraitType.values),
+            )
+        ]
+
+    def create_trait_from_template(self, item, **kwargs) -> Union[WeaponTrait, ArmorTrait]:
+        trait = TraitInstanceBase.create_trait_from_template(template=self, item=item, **kwargs)
+        return trait
 
     def __str__(self):
         trait_name = self.trait_name
@@ -219,8 +237,29 @@ class TraitInstanceBase(models.Model):
                                                blank=True)
 
     regex = re.compile('\(.*(X).*\)')
+
     class Meta:
         abstract = True
+
+    @classmethod
+    def create_trait_from_template(cls, template: Union[TraitTemplate, int], item: Union[int, Item], **kwargs):
+        if isinstance(template, int):
+            template = TraitTemplate.objects.get(id=template)
+
+        if isinstance(item, Item):
+            item = item.id
+
+        if not template.scaling_trait:
+            kwargs['x_value'] = None
+        elif template.scaling_trait and not kwargs.get('x_value'):
+            raise ValidationError("x_value must be provided for a scaling trait instance")
+
+        if template.trait_type == TraitType.ARMOR:
+            clazz = ArmorTrait
+        else:
+            clazz = WeaponTrait
+
+        return clazz.objects.create(template=template, item_id=item, **kwargs)
 
     def __str__(self):
         trait_name = self.template.trait_name
@@ -234,20 +273,6 @@ class ArmorTrait(TraitInstanceBase):
                              null=True,
                              blank=True,
                              default=None)
-
-    @classmethod
-    def create_trait_from_template(cls, template: Union[TraitTemplate, int], item: Union[int, Item], x_value: int=None) ->ArmorTrait:
-        if isinstance(template, int):
-            template = TraitTemplate.objects.get(id=template)
-
-        if isinstance(item, Item):
-            item = item.id
-
-        if not template.scaling_trait:
-            x_value = None
-
-        new_trait = cls.objects.create(template=template, item_id=item, x_value=x_value)
-        return new_trait
 
     def __str__(self):
         return f"{super().__str__()} on {self.item}"
@@ -271,24 +296,6 @@ class WeaponTrait(TraitInstanceBase):
                              null=True,
                              blank=True,
                              default=None)
-
-    @classmethod
-    def create_trait_from_template(cls, template: Union[TraitTemplate, int], item: Union[int, Item], weapon_type, x_value: int=None) -> WeaponTrait:
-        if isinstance(template, int):
-            template = TraitTemplate.objects.get(id=template)
-
-        if isinstance(item, Item):
-            item = item.id
-
-        if not template.scaling_trait:
-            x_value = None
-
-        trait = cls.objects.create(template=template, weapon_type=weapon_type, x_value=x_value, item_id=item)
-
-        return trait
-
-
-
 
     def __str__(self):
         return f"{super().__str__()} on {self.item}"

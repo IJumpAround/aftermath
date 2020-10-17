@@ -1,3 +1,4 @@
+from django.db import IntegrityError
 from django.forms import model_to_dict
 from django.test import TestCase
 
@@ -8,8 +9,8 @@ class TraitModelTests(TestCase):
 
     def setUp(self):
         self.tier = Tier.objects.create(description="A tier", level=0)
-        self.weapon_template = TraitTemplate.objects.create(trait_name="Some Trait (X)", scaling_trait=True, tier=self.tier)
-        self.armor_template = TraitTemplate.objects.create(trait_name="Impeding (X)", scaling_trait=True, tier=self.tier)
+        self.weapon_template = TraitTemplate.objects.create(trait_name="Some Trait (X)", scaling_trait=True, tier=self.tier, trait_type='Weapon')
+        self.armor_template = TraitTemplate.objects.create(trait_name="Impeding (X)", scaling_trait=True, tier=self.tier, trait_type='Armor')
         self.player = Player.objects.create(name="Nyhm")
         self.weapon_slot = ItemSlot.objects.create(slot_name="weapon")
         self.chest_slot = ItemSlot.objects.create(slot_name="Chest")
@@ -18,9 +19,9 @@ class TraitModelTests(TestCase):
 
     def test_create_from_template(self):
         x_val = 3
-        armor_piercing_template = TraitTemplate.objects.create(trait_name="Armor Piercing (X)", tier=self.tier, scaling_trait=True)
+        armor_piercing_template = TraitTemplate.objects.create(trait_name="Armor Piercing (X)", tier=self.tier, scaling_trait=True, trait_type='Weapon')
 
-        armor_piercing_instance = WeaponTrait.create_trait_from_template(armor_piercing_template, self.weapon, 'Melee', x_value=x_val)
+        armor_piercing_instance = WeaponTrait.create_trait_from_template(armor_piercing_template, self.weapon, weapon_type='Melee', x_value=x_val)
 
 
         self.assertNotEqual(armor_piercing_template.id, armor_piercing_instance.id)
@@ -42,20 +43,30 @@ class TraitModelTests(TestCase):
 
     def test_str_method_on_scalable(self):
         x_val = 4
-        trait = WeaponTrait.create_trait_from_template(self.weapon_template, self.weapon, 'Melee', x_value=x_val)
+        trait = WeaponTrait.create_trait_from_template(self.weapon_template, self.weapon, weapon_type='Melee', x_value=x_val)
 
         string = trait.__str__()
 
         self.assertEqual(f"Some Trait ({x_val}) on {trait.item}", string)
 
     def test_str_method_on_non_scalable(self):
-        template = TraitTemplate.objects.create(trait_name="A non scaling trait", scaling_trait=False, tier=self.tier)
-        trait = WeaponTrait.create_trait_from_template(template, self.weapon, 'Melee')
+        template = TraitTemplate.objects.create(trait_name="A non scaling trait", scaling_trait=False, tier=self.tier, trait_type='Weapon')
+        trait = WeaponTrait.create_trait_from_template(template, self.weapon, weapon_type='Melee')
 
         string = trait.__str__()
 
         self.assertEqual(f"{trait.template.trait_name} on {trait.item}", string)
 
+    def test_template_type_constraint(self):
+        with self.assertRaises(IntegrityError):
+            template = TraitTemplate.objects.create(trait_name="Trait", scaling_trait=False, tier=self.tier)
 
+
+    def test_trait_creation_from_template_classmethod(self):
+        armor_trait = self.armor_template.create_trait_from_template(item=self.weapon, x_value=3)
+
+        self.assertNotEqual(self.armor_template.id, armor_trait.id)
+        self.assertEqual(self.armor_template.trait_name, armor_trait.template.trait_name)
+        self.assertEqual(armor_trait.item, self.armor)
 
 
