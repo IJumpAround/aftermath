@@ -208,20 +208,31 @@ class Tier(models.Model):
 class TraitType(models.TextChoices):
     WEAPON = 'Weapon'
     ARMOR = 'Armor'
+
+class WeaponType(models.TextChoices):
+    SPECIAL = 'Special'
+    EITHER = 'Either'
+    MELEE = 'Melee'
+    RANGED = 'Ranged'
+
 class TraitTemplate(models.Model):
     trait_name = models.CharField(max_length=30)
     scaling_trait = models.BooleanField(blank=False,
                                         null=False)
-    description = models.CharField(max_length=140)
+    description = models.TextField()
 
     tier = models.ForeignKey(Tier,
                              on_delete=models.PROTECT,
                              null=False)
 
     trait_type = models.CharField(choices=TraitType.choices,
-                                  max_length=6)
+                                  max_length=6,
+                                  blank=False,
+                                  null=False)
+
 
     class Meta:
+        abstract = True
         constraints = [
             models.CheckConstraint(
             name="%(app_label)s_%(class)s_trait_type_valid",
@@ -237,9 +248,31 @@ class TraitTemplate(models.Model):
         trait_name = self.trait_name
         return trait_name
 
+class ArmorTraitTemplate(TraitTemplate):
+    trait_type = models.CharField(choices=TraitType.choices,
+                                  max_length=6,
+                                  blank=False,
+                                  null=False,
+                                  default=TraitType.ARMOR)
+    pass
 
+
+
+class WeaponTraitTemplate(TraitTemplate):
+    trait_type = models.CharField(choices=TraitType.choices,
+                                  max_length=6,
+                                  blank=False,
+                                  null=False,
+                                  default=TraitType.WEAPON)
+    weapon_type = models.CharField(blank=False,
+                                   choices=WeaponType.choices,
+                                   max_length=10,
+                                   default=None)
+
+
+# TODO x_value is not constrained in the admin panel, null x_value can be assigned to scalable traits
 class TraitInstanceBase(models.Model):
-    template = models.ForeignKey(TraitTemplate, on_delete=models.CASCADE)
+
     x_value = models.PositiveSmallIntegerField(null=True,
                                                blank=True)
 
@@ -277,42 +310,39 @@ class TraitInstanceBase(models.Model):
             clazz = ArmorTrait
         else:
             clazz = WeaponTrait
+            kwargs['weapon_type'] = template.weapon_type
 
         return clazz.objects.create(template=template, item_id=item, **kwargs)
 
-    def __str__(self):
-        trait_name = self.template.trait_name
-        if self.template.scaling_trait:
-            match = self.regex.search(self.template.trait_name)
+    def to_string(self, template: TraitTemplate):
+        trait_name = template.trait_name
+        if template.scaling_trait:
+            match = self.regex.search(template.trait_name)
             trait_name = f'{trait_name[:match.start(1)]}{self.x_value}{trait_name[match.end(1):]}'
         return trait_name
 
 class ArmorTrait(TraitInstanceBase):
+    template = models.ForeignKey(ArmorTraitTemplate, on_delete=models.CASCADE)
     item = models.ForeignKey(Armor, on_delete=models.SET_NULL,
                              null=True,
-                             blank=True,
+                             blank=False,
                              default=None)
 
     def __str__(self):
-        return f"{super().__str__()} on {self.item}"
+        return f"{super().to_string(self.template)} on {self.item}"
 
 
 class WeaponTrait(TraitInstanceBase):
-    class WeaponType(models.TextChoices):
-        SPECIAL = 'Special'
-        EITHER = 'Either'
-        MELEE = 'Melee'
-        RANGED = 'RANGED'
-
-    weapon_type = models.CharField(blank=True,
+    template = models.ForeignKey(WeaponTraitTemplate, on_delete=models.CASCADE)
+    weapon_type = models.CharField(blank=False,
                                    choices=WeaponType.choices,
                                    max_length=10,
                                    default=None)
 
     item = models.ForeignKey(Weapon, on_delete=models.CASCADE,
                              null=True,
-                             blank=True,
+                             blank=False,
                              default=None)
 
     def __str__(self):
-        return f"{super().__str__()} on {self.item}"
+        return f"{super().to_string(self.template)} on {self.item}"

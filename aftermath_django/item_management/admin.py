@@ -1,6 +1,7 @@
 from django.contrib import admin
 
-from .models import Player, Weapon, WeaponTrait, Armor, ArmorTrait, ItemSlot, Rarity, Tier, Stackable
+from .models import Player, Weapon, WeaponTrait, Armor, ArmorTrait, ItemSlot, Rarity, Tier, Stackable, TraitTemplate, \
+    ArmorTraitTemplate, WeaponTraitTemplate
 
 
 @admin.register(Armor)
@@ -45,18 +46,46 @@ class StackableAdmin(admin.ModelAdmin):
                  ('Owner', {'fields': ['player', 'quantity']})
                  ]
 
+class TraitTemplateAdmin(admin.ModelAdmin):
+    fieldsets = [('Description', {'fields': ['trait_name', 'description']}),
+                 (None, {'fields': ['tier', 'scaling_trait']}),
+                 ]
+
+@admin.register(ArmorTraitTemplate)
+class ArmorTraitTemplateAdmin(TraitTemplateAdmin):
+    pass
+
+@admin.register(WeaponTraitTemplate)
+class WeaponTraitTemplateAdmin(TraitTemplateAdmin):
+    pass
+
+
 @admin.register(WeaponTrait)
 class WeaponTraitAdmin(admin.ModelAdmin):
-    fieldsets = [('Description', {'fields': ['trait_name', 'description', 'x_value', 'is_template']}),
-                 (None, {'fields': ['tier', 'weapon_type']}),
+    fieldsets = [('Description', {'fields': ['template', 'weapon_type','x_value']}),
                  (None, {'fields': ['item']})]
+    # list_display = ('template',)
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+
+        non_editable = ['template', 'item']
+        for key in non_editable:
+            field = form.base_fields[key]
+            field.widget.can_add_related = True
+            field.widget.can_change_related = False
+            field.widget.can_delete_related = False
+        return form
+
+    class Media:
+        js = ('item_management/trait_x_value_disable.js',)
 
 @admin.register(ArmorTrait)
 class ArmorTraitAdmin(admin.ModelAdmin):
-    fieldsets = [('Description', {'fields': ['trait_name', 'description', 'x_value', 'is_template']}),
-                 (None, {'fields': ['tier']}),
+    fieldsets = [('Description', {'fields': ['template', 'x_value']}),
                  (None, {'fields': ['item']})
                   ]
+    list_display = ('template',)
 
 admin.site.register(Player)
 admin.site.register(Rarity)
