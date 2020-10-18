@@ -74,4 +74,15 @@ class TraitModelTests(TestCase):
         self.assertEqual(self.weapon_template.trait_name, weapon_trait.template.trait_name)
         self.assertEqual(weapon_trait.item, self.weapon)
 
+    def test_item_can_have_multiple_traits(self):
+        weapon_template2 = TraitTemplate.objects.create(trait_name="Another Weapon Trait", scaling_trait=False, tier=self.tier, trait_type='Weapon')
+        weapon_trait = self.weapon_template.create_trait_from_template(item=self.weapon, x_value=2, weapon_type='Melee')
+        weapon_trait2 = weapon_template2.create_trait_from_template(item=self.weapon, weapon_type='Melee')
+
+        traits = self.weapon.weapontrait_set.all()
+        print('test')
+
+        self.assertIn(weapon_trait, traits)
+        self.assertIn(weapon_trait2, traits)
+
 

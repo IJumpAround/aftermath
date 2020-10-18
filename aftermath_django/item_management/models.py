@@ -229,7 +229,7 @@ class TraitTemplate(models.Model):
             )
         ]
 
-    def create_trait_from_template(self, item, **kwargs) -> Union[WeaponTrait, ArmorTrait]:
+    def create_trait_from_template(self, item, **kwargs) -> TraitInstanceBase:
         trait = TraitInstanceBase.create_trait_from_template(template=self, item=item, **kwargs)
         return trait
 
