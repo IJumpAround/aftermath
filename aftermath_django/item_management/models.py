@@ -16,14 +16,19 @@ class Player(models.Model):
                                                         default=3,
                                                         blank=True)
     copper = models.IntegerField(blank=False,
+                                 null=False,
                                  default=0)
     silver = models.IntegerField(blank=False,
+                                 null=False,
                                  default=0)
     electrum = models.IntegerField(blank=False,
+                                   null=False,
                                  default=0)
     gold = models.IntegerField(blank=False,
+                               null=False,
                                    default=0)
     platinum = models.IntegerField(blank=False,
+                                   null=False,
                                    default=0)
 
     @classmethod
@@ -80,6 +85,8 @@ class Item(models.Model):
                                default=Player.get_default,
                                blank=False,
                                null=False)
+    obtained_from = models.TextField(null=True,
+                                     blank=True)
 
 
     @classmethod
@@ -242,7 +249,19 @@ class TraitInstanceBase(models.Model):
         abstract = True
 
     @classmethod
-    def create_trait_from_template(cls, template: Union[TraitTemplate, int], item: Union[int, Item], **kwargs):
+    def create_trait_from_template(cls, template: Union[TraitTemplate, int], item: Union[int, Item], **kwargs) -> TraitInstanceBase:
+        """
+        Creates a trait instance from a template and associates it with the item provided.
+        Args:
+            template: the template we are copying
+            item: the item to apply this trait to
+            **kwargs:
+                x_level is required if the template is a scaling trait
+                weapon_type is required for weapon traits
+
+        Returns: An instance of a WeaponTrait or ArmorTrait
+
+        """
         if isinstance(template, int):
             template = TraitTemplate.objects.get(id=template)
 
@@ -284,8 +303,6 @@ class WeaponTrait(TraitInstanceBase):
         EITHER = 'Either'
         MELEE = 'Melee'
         RANGED = 'RANGED'
-
-
 
     weapon_type = models.CharField(blank=True,
                                    choices=WeaponType.choices,
