@@ -21,15 +21,9 @@ function x_value_valid(template_text, x_value_value) {
     console.log(template_text)
     console.log(x_value_value)
     if (template_text.search(regex) > 0) {
-        if(isNaN(x_value_value)) {
-            return "X must be provided for a scaling trait";
-        } else {
-            return true;
-        }
-    } else if (!isNaN(x_value_value)){
-        return "X should not be provided for a non scaling trait";
+        return !(x_value_value.trim() === "");
     } else {
-        return true;
+        return x_value_value === "";
     }
 }
 function form_validator(event) {
@@ -39,7 +33,7 @@ function form_validator(event) {
     let x_value_value = x_val.value
 
     let result = x_value_valid(template_text, x_value_value)
-    if (result !== false) {
+    if (result === false) {
         console.log('invalid')
         alert("X value must be provided for a scaling trait and should not be provided with non-scaling traits.")
         event.preventDefault()
@@ -47,7 +41,7 @@ function form_validator(event) {
 }
 
 window.onload = function() {
-    let form = document.getElementById('weapontrait_form') ? document.getElementById('weapontrait_form') : document.getElementById('armor_trait_form')
+    let form = document.getElementById('weapontrait_form') ? document.getElementById('weapontrait_form') : document.getElementById('armortrait_form')
     let x_val = document.getElementById('id_x_value')
     if(form) {
         form.addEventListener("change", x_value_disabler, true);

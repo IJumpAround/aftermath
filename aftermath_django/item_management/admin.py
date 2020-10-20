@@ -87,5 +87,8 @@ class ArmorTraitAdmin(admin.ModelAdmin):
                   ]
     list_display = ('template',)
 
+    class Media:
+        js = ('item_management/trait_x_value_disable.js',)
+
 admin.site.register(Player)
 admin.site.register(Rarity)
