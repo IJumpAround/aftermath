@@ -7,7 +7,7 @@ from django.utils.log import request_logger
 from rest_framework.serializers import HyperlinkedModelSerializer
 
 from .serializers import UserSerializer, GroupSerializer, PlayerSerializer, ArmorSerializer, \
-    RaritySerializer, ItemSlotSerializer, WeaponSerializer, StackableSerializer
+    RaritySerializer, ItemSlotSerializer, WeaponSerializer, StackableSerializer, WeaponTraitSerializer
 from .models import *
 
 
@@ -58,10 +58,24 @@ class WeaponViewSet(viewsets.ModelViewSet):
     serializer_class = WeaponSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+
 class StackableViewSet(viewsets.ModelViewSet):
     queryset = Stackable.objects.all()
     serializer_class = StackableSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+
+class WeaponTraitViewSet(viewsets.ModelViewSet):
+    queryset = WeaponTrait.objects.all()
+    serializer_class = WeaponTraitSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+
+class ArmorTraitViewSet(viewsets.ModelViewSet):
+    queryset = ArmorTrait.objects.all()
+    serializer_class = WeaponTraitSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
 
 
 @api_view(http_method_names=['GET'])

@@ -191,6 +191,9 @@ class Armor(Equippable):
 
 
 class Weapon(Equippable):
+    weapon = models.CharField(max_length=40,
+                                   blank=True,
+                                   null=True)
     pass
 
     def __str__(self):
@@ -245,8 +248,7 @@ class TraitTemplate(models.Model):
         return trait
 
     def __str__(self):
-        trait_name = self.trait_name
-        return trait_name
+        return self.trait_name
 
 class ArmorTraitTemplate(TraitTemplate):
     trait_type = models.CharField(choices=TraitType.choices,
