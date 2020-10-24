@@ -1,13 +1,17 @@
 from django.contrib.auth.models import User, Group
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.http import JsonResponse
+from django.views import View
 from rest_framework import viewsets, permissions, generics
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, action
 from rest_framework.response import Response
 
 from django.utils.log import request_logger
 from rest_framework.serializers import HyperlinkedModelSerializer
 
 from .serializers import UserSerializer, GroupSerializer, PlayerSerializer, ArmorSerializer, \
-    RaritySerializer, ItemSlotSerializer, WeaponSerializer, StackableSerializer, WeaponTraitSerializer
+    RaritySerializer, ItemSlotSerializer, WeaponSerializer, StackableSerializer, WeaponTraitSerializer, \
+    BaseItemSerializer
 from .models import *
 
 
@@ -15,6 +19,13 @@ class PlayerViewSet(viewsets.ModelViewSet):
     queryset = Player.objects.all().order_by('-name')
     serializer_class = PlayerSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+    @action(methods=['get'], detail=True, permission_classes=[permissions.IsAuthenticated],
+            url_path='items', url_name='items')
+    def get_items(self, request, pk=None):
+        player = self.get_object()
+
+        return player.get_owned_items()
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -77,22 +88,61 @@ class ArmorTraitViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
 
+class ViewPaginatorMixin(object):
+    min_limit = 1
+    max_limit = 10
 
-@api_view(http_method_names=['GET'])
-def get_all_items(request):
-    request_logger.info('get_all_items')
+    def paginate(self, object_list, page=1, limit=10, **kwargs):
+        try:
+            page = int(page)
+            if page < 1:
+                page = 1
+        except (TypeError, ValueError):
+            page = 1
 
-    weapons = Weapon.objects.all() #.select_related()
-    armor = Armor.objects.all() #.select_related()
-    stacks = Stackable.objects.all()
+        try:
+            limit = int(limit)
+            if limit < self.min_limit:
+                limit = self.min_limit
+            if limit > self.max_limit:
+                limit = self.max_limit
+        except (ValueError, TypeError):
+            limit = self.max_limit
 
-    raw_items :[Item] = [weapons, armor, stacks]
-    items = []
+        paginator = Paginator(object_list, limit)
+        try:
+            objects = paginator.page(page)
+        except PageNotAnInteger:
+            objects = paginator.page(1)
+        except EmptyPage:
+            objects = paginator.page(paginator.num_pages)
+        data = {
+            'previous_page': objects.has_previous() and objects.previous_page_number() or None,
+            'next_page': objects.has_next() and objects.next_page_number() or None,
+            'data': list(objects)
+        }
+        return data
 
-    for item in raw_items:
-        serializer_class : type(HyperlinkedModelSerializer) = item.model.get_serializer()
-        object_serializer: HyperlinkedModelSerializer = serializer_class(item, many=True, context = {'request': request})
-        items.append(object_serializer.data)
 
-    item_list = {'items':items}
-    return Response(item_list, 200)
+class MainItemsView(ViewPaginatorMixin, viewsets.ViewSet):
+
+    def get(self, request):
+        request_logger.info('get_all_items')
+
+        page = request.content_params.get('page',1)
+        limit = request.content_params.get('limit', 25)
+        # queryset = Weapon.query_common_base_fields().union(Armor.query_common_base_fields()).union(Stackable.query_common_base_fields())
+
+        weapons = Weapon.objects.all()  # .select_related()
+        armor = Armor.objects.all()  # .select_related()
+        stacks = Stackable.objects.all()
+
+        raw_items: [Item] = [weapons, armor, stacks]
+        items = []
+        for item in raw_items:
+            serializer_class : type(HyperlinkedModelSerializer) = item.model.get_serializer()
+            object_serializer: HyperlinkedModelSerializer = serializer_class(item, many=True, context = {'request': request})
+            items.append(object_serializer.data)
+
+
+        return Response({"resources": self.paginate(items, page, limit)})

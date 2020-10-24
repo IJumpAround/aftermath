@@ -40,9 +40,10 @@ class Player(models.Model):
         party = cls.objects.get_or_create(name="Party", defaults={'name':"Party"})
         return party[0].pk
 
-    def get_items(self):
-        armor = Armor.objects.filter(player_id=self.id)
-        return armor
+
+    def get_owned_items(self):
+        items = Item.get_owned_items(self.id)
+        return items
 
     def __str__(self):
         return self.name
@@ -88,18 +89,21 @@ class Item(models.Model):
     obtained_from = models.TextField(null=True,
                                      blank=True)
 
+    @classmethod
+    def query_common_base_fields(cls):
+        query = cls.objects.all().only('name', 'rarity', 'wondrous', 'requires_attunement', 'player__name', 'quantity')
+        return query
 
     @classmethod
     def get_serializer(cls):
-        class BaseSerializer(serializers.ModelSerializer):
-
+        class BaseSerializer(serializers.HyperlinkedModelSerializer):
+            player = serializers.StringRelatedField()
             class Meta:
                 model = cls
                 fields = '__all__'
                 depth = 1
 
         return BaseSerializer
-
 
 class Stackable(Item):
     # Potion, Arrows, bolts, etc
@@ -269,7 +273,7 @@ class WeaponTraitTemplate(TraitTemplate):
     weapon_type = models.CharField(blank=False,
                                    choices=WeaponType.choices,
                                    max_length=10,
-                                   default=None)
+                                   default=WeaponType.MELEE)
 
 
 # TODO x_value is not constrained in the admin panel, null x_value can be assigned to scalable traits

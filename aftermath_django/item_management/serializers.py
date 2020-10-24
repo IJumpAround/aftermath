@@ -7,6 +7,8 @@ from .models import Player, Armor, Rarity, Tier, ArmorTrait, WeaponTrait, Weapon
     TraitTemplate, WeaponTraitTemplate, ArmorTraitTemplate
 
 
+
+
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = User
@@ -24,7 +26,13 @@ class PlayerSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Player
-        fields = ('name', 'weapon_set', 'armor_set', 'copper', 'silver','electrum','gold','platinum')
+        fields = ('id', 'name', 'weapon_set', 'armor_set', 'copper', 'silver','electrum','gold','platinum')
+
+
+class SimplePlayerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Player
+        fields = ('name')
 
 
 class RaritySerializer(serializers.ModelSerializer):
@@ -79,4 +87,18 @@ class WeaponSerializer(serializers.ModelSerializer):
     class Meta:
         model = Weapon
         fields = '__all__'
+
+
+class BaseItemSerializer(serializers.Serializer):
+    def update(self, instance, validated_data):
+        pass
+
+    def create(self, validated_data):
+        pass
+
+    name = serializers.CharField()
+    rarity = RaritySerializer()
+    wondrous = serializers.BooleanField()
+    requires_attunement = serializers.BooleanField()
+    player = serializers.StringRelatedField()
 

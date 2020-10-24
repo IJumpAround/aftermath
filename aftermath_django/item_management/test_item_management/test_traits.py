@@ -56,11 +56,6 @@ class TraitModelTests(TestCase):
 
         self.assertEqual(f"{trait.template.trait_name} on {trait.item}", string)
 
-    def test_template_type_constraint(self):
-        with self.assertRaises(IntegrityError):
-            template = WeaponTraitTemplate.objects.create(trait_name="Trait", scaling_trait=False, tier=self.tier)
-
-
     def test_scalable_requires_x_value(self):
         with self.assertRaises(ValidationError):
             armor_trait = self.armor_template.create_trait_from_template(item=self.weapon)

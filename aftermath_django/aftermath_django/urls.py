@@ -36,6 +36,7 @@ router.register(r'users', views.UserViewSet)
 router.register(r'weapons', views.WeaponViewSet)
 
 
+
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
