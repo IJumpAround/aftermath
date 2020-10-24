@@ -5,7 +5,7 @@ from typing import Optional, Union
 
 from django.db import models
 from django.core.validators import MaxValueValidator
-from django.db.models import Count, Q, ObjectDoesNotExist
+from django.db.models import Count, Q, ObjectDoesNotExist, F, Value, IntegerField
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
 
@@ -59,7 +59,7 @@ class ItemSlot(models.Model):
 
 class Rarity(models.Model):
     class Meta:
-        verbose_name_plural = 'Rarities'
+        verbose_name_plural = 'rarities'
 
     rarity_level = models.CharField(max_length=40,
                                     unique=True)
@@ -88,10 +88,11 @@ class Item(models.Model):
                                null=False)
     obtained_from = models.TextField(null=True,
                                      blank=True)
+    quantity = models.IntegerField(default=1)
 
     @classmethod
     def query_common_base_fields(cls):
-        query = cls.objects.all().only('name', 'rarity', 'wondrous', 'requires_attunement', 'player__name', 'quantity')
+        query = cls.objects.all().only('id', 'name', 'rarity', 'wondrous', 'requires_attunement', 'player__name', 'quantity').annotate(model_type=Value(cls._meta.verbose_name_plural, output_field=models.CharField()))
         return query
 
     @classmethod
@@ -188,7 +189,7 @@ class Armor(Equippable):
     pass
 
     class Meta:
-        verbose_name_plural = "Armor"
+        verbose_name_plural = "armor"
 
     def __str__(self):
         return self.name

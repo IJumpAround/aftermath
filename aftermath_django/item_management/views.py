@@ -119,7 +119,9 @@ class ViewPaginatorMixin(object):
         data = {
             'previous_page': objects.has_previous() and objects.previous_page_number() or None,
             'next_page': objects.has_next() and objects.next_page_number() or None,
-            'data': list(objects)
+            'data': list(objects),
+            'count': len(objects),
+            'total_items': len(object_list)
         }
         return data
 
@@ -129,20 +131,12 @@ class MainItemsView(ViewPaginatorMixin, viewsets.ViewSet):
     def get(self, request):
         request_logger.info('get_all_items')
 
-        page = request.content_params.get('page',1)
-        limit = request.content_params.get('limit', 25)
-        # queryset = Weapon.query_common_base_fields().union(Armor.query_common_base_fields()).union(Stackable.query_common_base_fields())
+        page = request.query_params.get('page',1)
+        limit = request.query_params.get('limit', 25)
+        order_by = request.query_params.get('order_by', 'name')
+        queryset = Weapon.query_common_base_fields().union(Armor.query_common_base_fields()).union(Stackable.query_common_base_fields()).order_by(order_by)
 
-        weapons = Weapon.objects.all()  # .select_related()
-        armor = Armor.objects.all()  # .select_related()
-        stacks = Stackable.objects.all()
-
-        raw_items: [Item] = [weapons, armor, stacks]
-        items = []
-        for item in raw_items:
-            serializer_class : type(HyperlinkedModelSerializer) = item.model.get_serializer()
-            object_serializer: HyperlinkedModelSerializer = serializer_class(item, many=True, context = {'request': request})
-            items.append(object_serializer.data)
-
-
+        # items = [BaseItemSerializer(item, context = {'request': request}).data for item in queryset]
+        # test = BaseItemSerializer(queryset, context = {'request': request})
+        items = BaseItemSerializer(queryset, many=True,  context = {'request': request}).data
         return Response({"resources": self.paginate(items, page, limit)})

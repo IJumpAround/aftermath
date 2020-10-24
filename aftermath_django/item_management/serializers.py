@@ -88,6 +88,13 @@ class WeaponSerializer(serializers.ModelSerializer):
         model = Weapon
         fields = '__all__'
 
+class ModelNameField(serializers.Field):
+    def get_attribute(self, instance):
+        return instance
+
+    def to_representation(self, value):
+        return value._meta.model_name
+
 
 class BaseItemSerializer(serializers.Serializer):
     def update(self, instance, validated_data):
@@ -96,9 +103,13 @@ class BaseItemSerializer(serializers.Serializer):
     def create(self, validated_data):
         pass
 
+    id = serializers.PrimaryKeyRelatedField(read_only=True)
+    model_type = serializers.CharField()
     name = serializers.CharField()
     rarity = RaritySerializer()
     wondrous = serializers.BooleanField()
     requires_attunement = serializers.BooleanField()
     player = serializers.StringRelatedField()
+    quantity = serializers.IntegerField()
+
 
