@@ -1,3 +1,15 @@
 span.react-bs-table-sizePerPage-dropdown.dropdown {
     float: left !important;
 }
+
+table th, table td {
+    white-space: nowrap;
+    overflow: hidden;
+    padding-right: 10px;
+}
+
+.expanded-div-override {
+    overflow: auto;
+    white-space: pre-line;
+}
+

@@ -5,7 +5,7 @@ import BootstrapTable from "react-bootstrap-table-next"
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCheckSquare} from "@fortawesome/free-solid-svg-icons";
 import {faSquare} from "@fortawesome/free-regular-svg-icons";
-import ToolkitProvider, { Search } from 'react-bootstrap-table2-toolkit';
+import ToolkitProvider, {Search} from 'react-bootstrap-table2-toolkit';
 import paginationFactory from 'react-bootstrap-table2-paginator';
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 import 'react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css';
@@ -37,11 +37,11 @@ class FilterableItemTable extends Component {
 
     attunementFormatter(cell) {
         const requiresAttunement = (cell === true) ? faCheckSquare : faSquare
-            return (
-                <span>
+        return (
+            <span>
             <FontAwesomeIcon icon={requiresAttunement}/>
                 </span>
-            )
+        )
     }
 
     nameFormatter(cell, row) {
@@ -60,11 +60,15 @@ class FilterableItemTable extends Component {
         )
     }
 
-
+    itemTypeFormatter(cell, row) {
+        let itemType = row.model_name;
+        itemType = itemType[0].toUpperCase() + itemType.substr(1, itemType.length)
+        return itemType;
+    }
 
     render() {
         // TODO add description, make description expandable to show full description on click.
-        const { SearchBar } = Search;
+        const {SearchBar} = Search;
         const columns = [{
             dataField: 'name',
             text: 'Name',
@@ -72,12 +76,23 @@ class FilterableItemTable extends Component {
             formatter: this.nameFormatter,
             headerFormatter: this.nameHeaderFormatter
         }, {
-            dataField: 'description',
+            dataField: 'text_description',
             text: 'Description'
         }, {
+            dataField: 'model_name',
+            text: 'Item Type',
+            formatter: this.itemTypeFormatter,
+            headerStyle: (colum, colIndex) => {
+                return {width: '200px', textAlign: 'center'};
+            }
+        },
+            {
             dataField: 'requires_attunement',
             text: 'Requires Attunement',
-            formatter: this.attunementFormatter
+            formatter: this.attunementFormatter,
+            headerStyle: (colum, colIndex) => {
+                return {width: '200px', textAlign: 'center'};
+            }
         }, {
             dataField: 'player',
             text: 'Owner',
@@ -85,33 +100,46 @@ class FilterableItemTable extends Component {
         }, {
             dataField: 'quantity',
             text: 'Quantity',
+            classes: 'quantity-column',
+            headerStyle: (colum, colIndex) => {
+                return {width: '100px', textAlign: 'center'};
+            }
         }
         ]
 
-        if(this.state.items) {
+
+        const expandRow = {
+            renderer: row => (
+                <div className="expanded-div-override">
+                    {row.text_description}
+                </div>
+            )
+        };
+
+        if (this.state.items) {
             return (<div>
                 <ToolkitProvider
-                                 bootstrap4
-                                 keyField='name'
-                                 data={this.state.items}
-                                 columns={columns}
-                                 search
-
+                    bootstrap4
+                    keyField='name'
+                    data={this.state.items}
+                    columns={columns}
+                    search
 
                 >{
                     props => (
-                    <div className='row'>
-                        <div className='col-12'>
-                            <h3>Search all items:</h3>
-                            <SearchBar { ...props.searchProps } />
-                            <hr />
-                            <BootstrapTable bootstrap4
-                                            hover
-                                { ...props.baseProps }
-                                            pagination = {paginationFactory()}
-                            />
-                         </div>
-                     </div>
+                        <div className='row'>
+                            <div className='col-12'>
+                                {/*<h3>Search all items:</h3>*/}
+                                <SearchBar {...props.searchProps} />
+                                <hr/>
+                                <BootstrapTable bootstrap4
+                                                hover
+                                                {...props.baseProps}
+                                                pagination={paginationFactory()}
+                                                expandRow={expandRow}
+                                />
+                            </div>
+                        </div>
                     )
                 }
                 </ToolkitProvider>
@@ -120,7 +148,7 @@ class FilterableItemTable extends Component {
             return <div>Nothing to see here</div>
         }
 
-   }
+    }
 }
 
 
