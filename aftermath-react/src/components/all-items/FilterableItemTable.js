@@ -63,6 +63,7 @@ class FilterableItemTable extends Component {
 
 
     render() {
+        // TODO add description, make description expandable to show full description on click.
         const { SearchBar } = Search;
         const columns = [{
             dataField: 'name',
@@ -71,8 +72,8 @@ class FilterableItemTable extends Component {
             formatter: this.nameFormatter,
             headerFormatter: this.nameHeaderFormatter
         }, {
-            dataField: 'rarity',
-            text: 'Rarity'
+            dataField: 'description',
+            text: 'Description'
         }, {
             dataField: 'requires_attunement',
             text: 'Requires Attunement',
