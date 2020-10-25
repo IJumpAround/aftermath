@@ -1,10 +1,15 @@
 import React, {Component} from "react";
 import axios from "../../utils/axiosInstance";
 import BootstrapTable from "react-bootstrap-table-next"
+// import ToolkitProvider, {Search} from 'react-bootstrap-table-next'
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCheckSquare} from "@fortawesome/free-solid-svg-icons";
 import {faSquare} from "@fortawesome/free-regular-svg-icons";
-import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css'
+import ToolkitProvider, { Search } from 'react-bootstrap-table2-toolkit';
+import paginationFactory from 'react-bootstrap-table2-paginator';
+import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
+import 'react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css';
+import './FilterableItemTable.css'
 
 
 class FilterableItemTable extends Component {
@@ -24,13 +29,6 @@ class FilterableItemTable extends Component {
         } catch (e) {
             console.log('error {}', e)
         }
-    }
-
-    slugFromItem(item) {
-        const itemType = item.model_type;
-        const id = item.id;
-
-        return `${itemType}/${id}`;
     }
 
     async componentDidMount() {
@@ -65,6 +63,7 @@ class FilterableItemTable extends Component {
 
 
     render() {
+        const { SearchBar } = Search;
         const columns = [{
             dataField: 'name',
             text: 'Name',
@@ -90,12 +89,31 @@ class FilterableItemTable extends Component {
 
         if(this.state.items) {
             return (<div>
-                <BootstrapTable bootstrap4
-                                keyField='name'
-                                data={this.state.items}
-                                columns={columns}
+                <ToolkitProvider
+                                 bootstrap4
+                                 keyField='name'
+                                 data={this.state.items}
+                                 columns={columns}
+                                 search
 
-                />
+
+                >{
+                    props => (
+                    <div className='row'>
+                        <div className='col-12'>
+                            <h3>Search all items:</h3>
+                            <SearchBar { ...props.searchProps } />
+                            <hr />
+                            <BootstrapTable bootstrap4
+                                            hover
+                                { ...props.baseProps }
+                                            pagination = {paginationFactory()}
+                            />
+                         </div>
+                     </div>
+                    )
+                }
+                </ToolkitProvider>
             </div>)
         } else {
             return <div>Nothing to see here</div>

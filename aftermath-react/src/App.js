@@ -3,7 +3,9 @@ import logo from './logo.svg';
 import './App.css';
 import 'react-bootstrap/dist/react-bootstrap'
 import 'react-bootstrap/dist/react-bootstrap.min'
+
 import 'bootstrap/dist/css/bootstrap.min.css'
+import 'bootstrap/dist/js/bootstrap.bundle.min'
 
 import FilterableItemTable from "./components/all-items/FilterableItemTable";
 
@@ -33,25 +35,23 @@ class App extends Component {
     render() {
         return (
             <div className="App">
-                <header className="App-header">
-                    <img src={logo} className="App-logo" alt="logo"/>
-                    <p>
-                        Edit <code>src/App.js</code> and save to reload.
-                    </p>
-                    <a
-                        className="App-link"
-                        href="https://reactjs.org"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >
-                        Learn React
-                    </a>
-                    <a className="App-link"
-                       href="http://127.0.0.1:8000/admin"
-                       target="_blank"
-                       rel="noopener noreferrer">Admin</a>
-                </header>
-                <FilterableItemTable data={this.test}/>
+                <div className="container-fluid">
+                    <div className='row'>
+                        <div className='col-12'>
+                            <a className="App-link"
+                               href="http://127.0.0.1:8000/admin"
+                               target="_blank"
+                               rel="noopener noreferrer">Admin</a>
+                        </div>
+                    </div>
+                    <div className='row'>
+                        <div className='col-1'></div>
+                        <div className='col-10'>
+                            <FilterableItemTable data={this.test}/>
+                        </div>
+                        <div className='col-1'/>
+                    </div>
+                </div>
             </div>
         );
     }
