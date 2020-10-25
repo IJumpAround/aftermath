@@ -112,5 +112,6 @@ class BaseItemSerializer(serializers.Serializer):
     requires_attunement = serializers.BooleanField()
     player = serializers.StringRelatedField()
     quantity = serializers.IntegerField()
+    model_name = serializers.CharField()
 
 

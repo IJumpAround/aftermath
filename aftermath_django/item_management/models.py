@@ -92,7 +92,7 @@ class Item(models.Model):
 
     @classmethod
     def query_common_base_fields(cls):
-        query = cls.objects.all().only('id', 'name','text_description', 'rarity', 'wondrous', 'requires_attunement', 'player__name', 'quantity').annotate(model_type=Value(cls._meta.verbose_name_plural, output_field=models.CharField()))
+        query = cls.objects.all().only('id', 'name','text_description', 'rarity', 'wondrous', 'requires_attunement', 'player__name', 'quantity').annotate(model_type=Value(cls._meta.verbose_name_plural, output_field=models.CharField())).annotate(model_name=Value(cls._meta.model_name, output_field=models.CharField()))
         return query
 
     @classmethod
