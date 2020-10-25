@@ -20,6 +20,7 @@ class App extends Component {
     async componentDidMount() {
         let response;
         try {
+            console.log(process.env.REACT_APP_)
             response = await axios.get("items/");
         } catch (e) {
             console.log('error {}', e)
