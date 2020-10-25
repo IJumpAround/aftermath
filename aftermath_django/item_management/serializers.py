@@ -106,6 +106,7 @@ class BaseItemSerializer(serializers.Serializer):
     id = serializers.PrimaryKeyRelatedField(read_only=True)
     model_type = serializers.CharField()
     name = serializers.CharField()
+    text_description = serializers.CharField()
     rarity = RaritySerializer()
     wondrous = serializers.BooleanField()
     requires_attunement = serializers.BooleanField()

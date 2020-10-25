@@ -19,7 +19,7 @@ class PlayerViewSet(viewsets.ModelViewSet):
     queryset = Player.objects.all().order_by('-name')
     serializer_class = PlayerSerializer
     permission_classes = [permissions.IsAuthenticated]
-
+    lookup_field = 'name'
     @action(methods=['get'], detail=True, permission_classes=[permissions.IsAuthenticated],
             url_path='items', url_name='items')
     def get_items(self, request, pk=None):
@@ -136,7 +136,5 @@ class MainItemsView(ViewPaginatorMixin, viewsets.ViewSet):
         order_by = request.query_params.get('order_by', 'name')
         queryset = Weapon.query_common_base_fields().union(Armor.query_common_base_fields()).union(Stackable.query_common_base_fields()).order_by(order_by)
 
-        # items = [BaseItemSerializer(item, context = {'request': request}).data for item in queryset]
-        # test = BaseItemSerializer(queryset, context = {'request': request})
         items = BaseItemSerializer(queryset, many=True,  context = {'request': request}).data
         return Response({"resources": self.paginate(items, page, limit)})
