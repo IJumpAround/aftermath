@@ -1,9 +1,13 @@
+import json
+from functools import reduce
+
 from django.contrib.auth.models import User, Group
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.http import JsonResponse
 from django.views import View
 from rest_framework import viewsets, permissions, generics
 from rest_framework.decorators import api_view, action
+from rest_framework.request import Request
 from rest_framework.response import Response
 
 from django.utils.log import request_logger
@@ -128,13 +132,44 @@ class ViewPaginatorMixin(object):
 
 class MainItemsView(ViewPaginatorMixin, viewsets.ViewSet):
 
-    def get(self, request):
+    def post(self, request: Request):
+        # request_logger.info('get_all_items')
+        body = request.data
+        page = body.get('start', 1)
+        limit = body.get('length', 25)
+        page = str(int(page) // int(limit))
+        order = body.get('order')[0]
+        order_col = body.get('columns')[order['column']]
+
+        direction = '' if order['dir'] == 'asc' else '-'
+
+        order_by = direction + order_col['data']
+        search_term = body['search']['value']
+
+        querysets = [Weapon.query_common_base_fields(), (Armor.query_common_base_fields()),
+            Stackable.query_common_base_fields()]\
+
+        if search_term and len(search_term) >= 1:
+            querysets = list(map(lambda query: query.filter(Q(name__icontains=search_term) | Q(player__name__icontains=search_term)), querysets))
+
+        queryset = reduce(lambda x, y: x.union(y), querysets)
+        queryset = queryset.order_by(order_by)
+
+
+            # queryset.filter(name__icontains=search_term)
+
+        items = BaseItemSerializer(queryset, many=True, context={'request': request}).data
+        return Response({"resources": self.paginate(items, page, limit)})
+
+    def get(self, request: Request):
         request_logger.info('get_all_items')
+        print(request.query_params)
+        page = request.query_params.get('start', 1)
+        limit = request.query_params.get('length', 25)
+        page = str(int(page) // int(limit))
+        order_by = request.query_params.get('order', 'name')
 
-        page = request.query_params.get('page',1)
-        limit = request.query_params.get('limit', 25)
-        order_by = request.query_params.get('order_by', 'name')
         queryset = Weapon.query_common_base_fields().union(Armor.query_common_base_fields()).union(Stackable.query_common_base_fields()).order_by(order_by)
-
-        items = BaseItemSerializer(queryset, many=True,  context = {'request': request}).data
+        queryset.filter()
+        items = BaseItemSerializer(queryset, many=True,  context={'request': request}).data
         return Response({"resources": self.paginate(items, page, limit)})
