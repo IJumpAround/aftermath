@@ -13,6 +13,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 
@@ -23,6 +24,7 @@ from django.urls import path, include
 # ]
 from rest_framework import routers
 
+from aftermath_django import settings
 from item_management import views
 
 router = routers.DefaultRouter()
@@ -39,9 +41,11 @@ router.register(r'weapons', views.WeaponViewSet)
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
-    # path('/', include(''))
+    # path('/', include('')) # login page here
     path('api/', include(router.urls)),
     path('admin/', admin.site.urls),
+    path('tinymce/', include('tinymce.urls')),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('items/', include('item_management.urls')),
-    path('polls/', include('polls.urls'))]
+    path('polls/', include('polls.urls')),
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

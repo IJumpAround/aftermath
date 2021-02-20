@@ -1,18 +1,22 @@
 from functools import reduce
 
+from django import forms
 from django.contrib.auth.models import User, Group
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.forms import ModelForm
+from django.utils.log import request_logger
+from django.views import generic
+from django.views.generic import TemplateView
 from rest_framework import viewsets, permissions
 from rest_framework.decorators import action
 from rest_framework.request import Request
 from rest_framework.response import Response
+from tinymce.widgets import TinyMCE
 
-from django.utils.log import request_logger
-
+from .models import *
 from .serializers import (UserSerializer, GroupSerializer, PlayerSerializer, ArmorSerializer,
                           RaritySerializer, ItemSlotSerializer, WeaponSerializer, StackableSerializer,
                           WeaponTraitSerializer, BaseItemSerializer)
-from .models import *
 
 
 class PlayerViewSet(viewsets.ModelViewSet):
@@ -127,6 +131,10 @@ class ViewPaginatorMixin(object):
         return data
 
 
+class IndexView(TemplateView):
+    template_name = 'index.html'
+
+
 class MainItemsView(ViewPaginatorMixin, viewsets.ViewSet):
 
     def post(self, request: Request):
@@ -178,3 +186,26 @@ class MainItemsView(ViewPaginatorMixin, viewsets.ViewSet):
 
         items = BaseItemSerializer(queryset, many=True, context={'request': request}).data
         return Response({"resources": self.paginate(items, page, limit)})
+
+
+class BaseItemForm(ModelForm):
+    text_description = forms.CharField(widget=TinyMCE(attrs={'cols': 80, 'rows': 30}))
+    flavor = forms.CharField(widget=TinyMCE(attrs={'cols': 10, 'rows': 2}, mce_attrs={'height': 100}))
+
+    def clean(self):
+        cleaned_data = super().clean()
+        is_attuned = cleaned_data.get('is_attuned')
+        player = cleaned_data.get('player')
+        if is_attuned and not player or player and player.name == 'Party':
+            self.add_error('is_attuned', ValidationError('Must have an owner to be attuned'))
+
+    class Meta:
+        abstract = True
+        model = Weapon
+        fields = 'name', 'flavor', 'rarity', 'wondrous', 'requires_attunement',  'is_attuned', 'player', 'obtained_from',
+        'quantity'
+
+
+class TestView(generic.FormView):
+    template_name = 'test.html'
+    form_class = BaseItemForm
