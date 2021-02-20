@@ -40,6 +40,8 @@ class WeaponAdmin(admin.ModelAdmin):
                  ('Misc', {'fields': ['rarity', 'item_slot']}),
                  ('Owner', {'fields': ['player']})
                  ]
+    list_display = ('name', 'rarity', 'item_slot', 'requires_attunement', 'is_attuned', 'wondrous', 'player')
+    list_editable = ('requires_attunement', 'is_attuned', 'wondrous', 'player', 'item_slot', 'rarity')
 
 
 @admin.register(Stackable)

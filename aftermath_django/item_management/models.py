@@ -69,7 +69,7 @@ class Rarity(models.Model):
 class Item(models.Model):
 
     def clean(self):
-        if self.is_attuned and self.player is None or self.player.name == 'Party':
+        if self.is_attuned and (self.player is None or self.player.name == 'Party'):
             raise ValidationError('Must have an owner to be attuned', params={self.is_attuned: 'Error'})
 
     class Meta:
