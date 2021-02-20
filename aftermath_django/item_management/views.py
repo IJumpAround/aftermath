@@ -154,7 +154,11 @@ class MainItemsView(ViewPaginatorMixin, viewsets.ViewSet):
             order_by = order_by[0]
             order_col = body.get('columns')[order_by['column']]
             direction = '' if order_by['dir'] == 'asc' else '-'
-            order_by = direction + order_col['data']
+            data = order_col.get('data')
+            if data:
+                order_by = direction + order_col.get('data', '')
+            else:
+                order_by = 'name'
         else:
             order_by = 'name'
 
