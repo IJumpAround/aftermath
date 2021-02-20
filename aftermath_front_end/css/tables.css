@@ -4,3 +4,11 @@
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
+.model-type {
+    text-transform:capitalize;
+}
+
+.attunement {
+    text-transform: capitalize;
+}
