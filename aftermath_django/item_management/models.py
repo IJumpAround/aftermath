@@ -1,7 +1,7 @@
 import re
 from typing import Optional, Union
 
-from django.db import models
+from django.db import models, transaction
 from django.core.validators import MaxValueValidator
 from django.db.models import Count, Q, ObjectDoesNotExist, Value
 from django.core.exceptions import ValidationError
@@ -67,6 +67,11 @@ class Rarity(models.Model):
 
 
 class Item(models.Model):
+
+    def clean(self):
+        if self.is_attuned and self.player is None or self.player.name == 'Party':
+            raise ValidationError('Must have an owner to be attuned')
+
     class Meta:
         abstract = True
 
@@ -76,22 +81,29 @@ class Item(models.Model):
     rarity = models.ForeignKey(Rarity, on_delete=models.SET_NULL,
                                null=True,
                                blank=True)
+
     wondrous = models.BooleanField(default=False)
     requires_attunement = models.BooleanField(default=False)
+    is_attuned = models.BooleanField(default=False)
 
     player = models.ForeignKey(Player,
                                on_delete=models.PROTECT,
                                default=Player.get_default,
                                blank=False,
                                null=False)
+
     obtained_from = models.TextField(null=True,
                                      blank=True)
+
     quantity = models.IntegerField(default=1)
 
     @classmethod
     def query_common_base_fields(cls):
+        """To better return a consistent data structure in the main view we retrieve useful properties that
+        are common to most items
+        """
         query = cls.objects.all().only('id', 'name', 'text_description', 'rarity', 'wondrous', 'requires_attunement',
-                                       'player__name', 'quantity').annotate(
+                                       'is_attuned', 'player__name', 'quantity').annotate(
             model_type=Value(cls._meta.verbose_name_plural, output_field=models.CharField())).annotate(
             model_name=Value(cls._meta.model_name, output_field=models.CharField()))
         return query
@@ -138,6 +150,7 @@ class Stackable(Item):
     def transfer_to_player(self, player: Optional[Player], amount):
         return self._transfer(player, amount)
 
+    @transaction.atomic()
     def _transfer(self, player, amount) -> 'Stackable':
         """
         Transfer some quantity of a stack of items to a new owner
@@ -153,6 +166,7 @@ class Stackable(Item):
 
 
         """
+
         new_owner_id = None
         if player:
             new_owner_id = Player.objects.get(name__exact=player).id

@@ -13,8 +13,8 @@ class ArmorAdmin(admin.ModelAdmin):
         (None, {'fields': ['item_slot']})
         # ('Date information', {'fields': ['pub_date']})
     ]
-    list_display = ('name', 'rarity', 'item_slot', 'requires_attunement', 'wondrous', 'player')
-    list_editable = ('requires_attunement', 'wondrous', 'player', 'item_slot', 'rarity')
+    list_display = ('name', 'rarity', 'item_slot', 'requires_attunement', 'is_attuned', 'wondrous', 'player')
+    list_editable = ('requires_attunement', 'is_attuned', 'wondrous', 'player', 'item_slot', 'rarity')
 
 
 @admin.register(Tier)

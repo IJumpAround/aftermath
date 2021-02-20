@@ -118,3 +118,4 @@ class BaseItemSerializer(serializers.Serializer):
     player = serializers.StringRelatedField()
     quantity = serializers.IntegerField()
     model_name = serializers.CharField()
+    is_attuned = serializers.BooleanField()
