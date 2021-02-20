@@ -11,7 +11,6 @@ class ItemsViewTestClass(TestCase):
         self.item_url = '/items'
         add_test_data_to_class(self)
 
-
     def test_get_request_to_items(self):
         url = reverse('item_management:items')
         response = self.client.get(url)
@@ -20,8 +19,16 @@ class ItemsViewTestClass(TestCase):
         print(resources)
         pprint.pprint(resources)
 
+    def test_post_request_to_items(self):
+        url = reverse('item_management:items')
+        response = self.client.post(url)
+
+        resources = response.json().get('resources').get('data')
+        print(resources)
+        pprint.pprint(resources)
+
     def test_quantity_on_items(self):
-        response = self.client.get('/items/')
+        response = self.client.post('/items/')
 
         items = response.json().get('resources').get('data')
 
@@ -29,7 +36,7 @@ class ItemsViewTestClass(TestCase):
             self.assertIsNotNone(item.get('quantity'))
 
     def test_can_resolve_pks(self):
-        response = self.client.get('/items/')
+        response = self.client.post('/items/')
 
         items = response.json().get('resources').get('data')
 
@@ -38,19 +45,39 @@ class ItemsViewTestClass(TestCase):
             print(resolve(f'/{item.get("model_type")}/'))
 
     def test_pagination_limit_page(self):
-        page = 1
-        limit = 2
-        print (resolve('/items/'))
-        # url = resolve('/items/', kwargs={'page': page, 'limit':limit})
-        resources = self.client.get('/items/',{'page': page, 'limit':limit} ).json().get('resources')
+        start = 1
+        length = 2
 
-        self.assertEqual(len(resources.get('data')), limit)
+        resources = self.client.post('/items/', {'start': start, 'length': length}).json().get('resources')
+
+        self.assertEqual(len(resources.get('data')), length)
         self.assertEqual(resources.get('next_page'), 2)
 
     def test_pagination_order(self):
-        order = '-player'
 
-        resources = self.client.get('/items/', {'order_by':order}).json().get('resources')
+        request_body = {'draw': 2, 'columns': [
+            {'data': 'id', 'name': '', 'searchable': True, 'orderable': True, 'search': {'value': '', 'regex': False}},
+            {'data': 'model_type', 'name': '', 'searchable': True, 'orderable': True,
+             'search': {'value': '', 'regex': False}},
+            {'data': 'name', 'name': '', 'searchable': True, 'orderable': True,
+             'search': {'value': '', 'regex': False}},
+            {'data': 'text_description', 'name': '', 'searchable': True, 'orderable': True,
+             'search': {'value': '', 'regex': False}},
+            {'data': 'rarity', 'name': '', 'searchable': True, 'orderable': True,
+             'search': {'value': '', 'regex': False}},
+            {'data': 'wondrous', 'name': '', 'searchable': True, 'orderable': True,
+             'search': {'value': '', 'regex': False}},
+            {'data': 'requires_attunement', 'name': '', 'searchable': True, 'orderable': True,
+             'search': {'value': '', 'regex': False}},
+            {'data': 'player', 'name': '', 'searchable': True, 'orderable': True,
+             'search': {'value': '', 'regex': False}},
+            {'data': 'quantity', 'name': '', 'searchable': True, 'orderable': True,
+             'search': {'value': '', 'regex': False}},
+            {'data': 'model_name', 'name': '', 'searchable': True, 'orderable': True,
+             'search': {'value': '', 'regex': False}}], 'order': [{'column': 7, 'dir': 'desc'}], 'start': 0,
+                        'length': 10, 'search': {'value': '', 'regex': False}}
+
+        resources = self.client.post('/items/', data=request_body, content_type='application/json').json().get('resources')
         items = resources.get('data')
 
         s = sorted(items, key=lambda i: i['player'])
@@ -61,7 +88,7 @@ class ItemsViewTestClass(TestCase):
 
     def test_default_pagination_order_uses_name(self):
 
-        resources = self.client.get('/items/').json().get('resources')
+        resources = self.client.post('/items/').json().get('resources')
         items = resources.get('data')
 
         s = sorted(items, key=lambda i: i['name'])

@@ -133,43 +133,46 @@ class ViewPaginatorMixin(object):
 class MainItemsView(ViewPaginatorMixin, viewsets.ViewSet):
 
     def post(self, request: Request):
-        # request_logger.info('get_all_items')
+        request_logger.info('get_all_items')
+        request_logger.info(request.data)
+
         body = request.data
-        page = body.get('start', 1)
-        limit = body.get('length', 25)
-        page = str(int(page) // int(limit))
-        order = body.get('order')[0]
-        order_col = body.get('columns')[order['column']]
 
-        direction = '' if order['dir'] == 'asc' else '-'
+        limit = int(body.get('length', 25))
+        page = int(body.get('start', 1)) // int(limit)
+        order_by = body.get('order')
 
-        order_by = direction + order_col['data']
-        search_term = body['search']['value']
+        search_term = body.get('search', {}).get('value')
 
         querysets = [Weapon.query_common_base_fields(), (Armor.query_common_base_fields()),
-            Stackable.query_common_base_fields()]\
+                     Stackable.query_common_base_fields()]
 
         if search_term and len(search_term) >= 1:
-            querysets = list(map(lambda query: query.filter(Q(name__icontains=search_term) | Q(player__name__icontains=search_term)), querysets))
+            querysets = list(map(lambda query: query.filter(Q(name__icontains=search_term) |
+                                                            Q(player__name__icontains=search_term)), querysets))
 
         queryset = reduce(lambda x, y: x.union(y), querysets)
+
+        if order_by:
+            order_by = order_by[0]
+            order_col = body.get('columns')[order_by['column']]
+            direction = '' if order_by['dir'] == 'asc' else '-'
+            order_by = direction + order_col['data']
+        else:
+            order_by = 'name'
+
         queryset = queryset.order_by(order_by)
-
-
-            # queryset.filter(name__icontains=search_term)
 
         items = BaseItemSerializer(queryset, many=True, context={'request': request}).data
         return Response({"resources": self.paginate(items, page, limit)})
 
     def get(self, request: Request):
         request_logger.info('get_all_items')
-        print(request.query_params)
-        page = request.query_params.get('start', 1)
-        limit = request.query_params.get('length', 25)
-        page = str(int(page) // int(limit))
-        order_by = request.query_params.get('order', 'name')
 
+        page = request.query_params.get('page', 1)
+        limit = request.query_params.get('limit', 25)
+        order_by = request.query_params.get('order_by', 'name')
         queryset = Weapon.query_common_base_fields().union(Armor.query_common_base_fields()).union(Stackable.query_common_base_fields()).order_by(order_by)
-        queryset.filter()
-        items = BaseItemSerializer(queryset, many=True,  context={'request': request}).data
+
+        items = BaseItemSerializer(queryset, many=True,  context = {'request': request}).data
         return Response({"resources": self.paginate(items, page, limit)})
