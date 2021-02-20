@@ -1,21 +1,17 @@
-import json
 from functools import reduce
 
 from django.contrib.auth.models import User, Group
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.http import JsonResponse
-from django.views import View
-from rest_framework import viewsets, permissions, generics
-from rest_framework.decorators import api_view, action
+from rest_framework import viewsets, permissions
+from rest_framework.decorators import action
 from rest_framework.request import Request
 from rest_framework.response import Response
 
 from django.utils.log import request_logger
-from rest_framework.serializers import HyperlinkedModelSerializer
 
-from .serializers import UserSerializer, GroupSerializer, PlayerSerializer, ArmorSerializer, \
-    RaritySerializer, ItemSlotSerializer, WeaponSerializer, StackableSerializer, WeaponTraitSerializer, \
-    BaseItemSerializer
+from .serializers import (UserSerializer, GroupSerializer, PlayerSerializer, ArmorSerializer,
+                          RaritySerializer, ItemSlotSerializer, WeaponSerializer, StackableSerializer,
+                          WeaponTraitSerializer, BaseItemSerializer)
 from .models import *
 
 
@@ -24,6 +20,7 @@ class PlayerViewSet(viewsets.ModelViewSet):
     serializer_class = PlayerSerializer
     permission_classes = [permissions.IsAuthenticated]
     lookup_field = 'name'
+
     @action(methods=['get'], detail=True, permission_classes=[permissions.IsAuthenticated],
             url_path='items', url_name='items')
     def get_items(self, request, pk=None):
@@ -172,7 +169,8 @@ class MainItemsView(ViewPaginatorMixin, viewsets.ViewSet):
         page = request.query_params.get('page', 1)
         limit = request.query_params.get('limit', 25)
         order_by = request.query_params.get('order_by', 'name')
-        queryset = Weapon.query_common_base_fields().union(Armor.query_common_base_fields()).union(Stackable.query_common_base_fields()).order_by(order_by)
+        queryset = Weapon.query_common_base_fields().union(Armor.query_common_base_fields()).union(
+            Stackable.query_common_base_fields()).order_by(order_by)
 
-        items = BaseItemSerializer(queryset, many=True,  context = {'request': request}).data
+        items = BaseItemSerializer(queryset, many=True, context={'request': request}).data
         return Response({"resources": self.paginate(items, page, limit)})

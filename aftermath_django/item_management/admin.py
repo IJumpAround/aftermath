@@ -14,7 +14,8 @@ class ArmorAdmin(admin.ModelAdmin):
         # ('Date information', {'fields': ['pub_date']})
     ]
     list_display = ('name', 'rarity', 'item_slot', 'requires_attunement', 'wondrous', 'player')
-    list_editable = ('requires_attunement', 'wondrous', 'player','item_slot', 'rarity')
+    list_editable = ('requires_attunement', 'wondrous', 'player', 'item_slot', 'rarity')
+
 
 @admin.register(Tier)
 class TierAdmin(admin.ModelAdmin):
@@ -40,20 +41,24 @@ class WeaponAdmin(admin.ModelAdmin):
                  ('Owner', {'fields': ['player']})
                  ]
 
+
 @admin.register(Stackable)
 class StackableAdmin(admin.ModelAdmin):
     fieldsets = [('Description', {'fields': ['name', 'text_description', 'stackable_type']}),
                  ('Owner', {'fields': ['player', 'quantity']})
                  ]
 
+
 class TraitTemplateAdmin(admin.ModelAdmin):
     fieldsets = [('Description', {'fields': ['trait_name', 'description']}),
                  (None, {'fields': ['tier', 'scaling_trait']}),
                  ]
 
+
 @admin.register(ArmorTraitTemplate)
 class ArmorTraitTemplateAdmin(TraitTemplateAdmin):
     pass
+
 
 @admin.register(WeaponTraitTemplate)
 class WeaponTraitTemplateAdmin(TraitTemplateAdmin):
@@ -62,8 +67,9 @@ class WeaponTraitTemplateAdmin(TraitTemplateAdmin):
 
 @admin.register(WeaponTrait)
 class WeaponTraitAdmin(admin.ModelAdmin):
-    fieldsets = [('Description', {'fields': ['template', 'weapon_type','x_value']}),
+    fieldsets = [('Description', {'fields': ['template', 'weapon_type', 'x_value']}),
                  (None, {'fields': ['item']})]
+
     # list_display = ('template',)
 
     def get_form(self, request, obj=None, **kwargs):
@@ -80,15 +86,17 @@ class WeaponTraitAdmin(admin.ModelAdmin):
     class Media:
         js = ('item_management/trait_x_value_disable.js',)
 
+
 @admin.register(ArmorTrait)
 class ArmorTraitAdmin(admin.ModelAdmin):
     fieldsets = [('Description', {'fields': ['template', 'x_value']}),
                  (None, {'fields': ['item']})
-                  ]
+                 ]
     list_display = ('template',)
 
     class Media:
         js = ('item_management/trait_x_value_disable.js',)
+
 
 admin.site.register(Player)
 admin.site.register(Rarity)

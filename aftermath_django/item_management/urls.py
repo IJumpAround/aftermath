@@ -1,6 +1,4 @@
-from django.urls import include, path
-from rest_framework import routers
-from . import views
+from django.urls import path
 
 from item_management import views
 
