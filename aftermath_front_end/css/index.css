@@ -22,3 +22,8 @@ body {
 .navbar-collapse {
     justify-content: flex-end;
 }
+
+
+.table-div {
+    width: 75%;
+}

@@ -6,14 +6,6 @@ function format ( d ) {
         '<td>Full Description:</td>'+
         '<td>'+ d.text_description.replace(/(?:\r\n|\r|\n)/g, '<br>') + '</td>'+
         '</tr>'+
-        '<tr>'+
-        '<td>Type: </td>'+
-        '<td class="model-type">'+d.model_type+'</td>'+
-        '</tr>'+
-        '<tr>'+
-        '<td>Extra info:</td>'+
-        '<td>And any further details here (images etc)...</td>'+
-        '</tr>'+
         '</table>';
 }
 
@@ -23,10 +15,13 @@ $(document).ready(function () {
         // select: true,
         dom: 'frtip',
         serverSide: true,
+        order: [[1, 'desc']],
         columns:
             [
-            {   "className":      'details-control',
+            {
+                "className":      'details-control',
                 "orderable":      false,
+                "ordering": false,
                 "data":           null,
                 "defaultContent": '<i class="fas fa-chevron-right"></i>'
             },
@@ -35,9 +30,28 @@ $(document).ready(function () {
             {"data": "text_description", "className": "truncate"},
             {"data": "rarity"},
             {"data": "wondrous", visible: false},
-            {"data": "requires_attunement", "className": "attunement"},
-            {"data": "player"},
+            {"data": "requires_attunement", "className": "attunement_col icon",
+                "render": function ( data, type, row, meta ) {
+                    let requires = data
+                    let attuned = row.is_attuned
+
+                    let placeholder = ""
+
+                    if (requires && attuned) {
+                        placeholder = "<i class='fas fa-lock attuned'/>"
+                    } else if (requires) {
+                        placeholder = '<i class="fas fa-lock-open"/>'
+                    } else {
+                        placeholder = '<i class="fas fa-times not-attunable"/>'
+                    }
+                    return placeholder
+
+
+            }
+            },
+            {"data": "player", "order": "asc"},
             {"data": "quantity"},
+            {"data": "is_attuned", visible: false}
             ],
 
         ajax: {
@@ -56,7 +70,7 @@ $(document).ready(function () {
                 json.data = json.resources.data;
                 let js_data = JSON.stringify(json)
 
-                // console.log(js_data)
+                console.log(js_data)
                 return js_data; // return JSON string
             },
         },
@@ -66,10 +80,7 @@ $(document).ready(function () {
         }
     });
 
-    // let tr = $(this).children('tr');
-    let test = table.rows()
-    // console.log(tr)
-    console.log(test)
+
     $('#table_id tbody').on('click', 'td.details-control', function () {
         let tr = $(this).closest('tr');
         let row = table.row( tr );
@@ -90,10 +101,6 @@ $(document).ready(function () {
             tr.addClass('shown')
             i.removeClass('fas fa-chevron-right')
             i.addClass('fas fa-chevron-down')
-            // cell.removeClass("fas fa-chevron-right")
-            // cell.addClass("fas fa-chevron-down")
-            // console.log(tr)
-            // tr.addClass('fas fa-chevron-right')
         }
     } );
 });
