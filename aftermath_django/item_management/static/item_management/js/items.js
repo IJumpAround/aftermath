@@ -36,6 +36,7 @@ $(document).ready(function () {
         dom: 'frtip',
         serverSide: true,
         order: [[1, 'desc']],
+        autoWidth: false,
         columns:
             [
                 {
