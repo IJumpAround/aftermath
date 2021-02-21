@@ -1,13 +1,14 @@
 .truncate {
-    max-width:75px;
+    max-width: 75px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
 .model-type {
-    text-transform:capitalize;
+    text-transform: capitalize;
 }
+
 
 .attunement-col {
     text-transform: capitalize;
@@ -22,12 +23,6 @@
     align-content: center;
 }
 
-#table_id  {
-    /*margin-left: 2%;*/
-    /*margin-right: 2%;*/
-
-}
-
 table td {
     text-align: center;
 }
@@ -37,4 +32,13 @@ div .table-container {
     padding-left: 30px;
     padding-right: 30px;
     padding-top: 15px
+}
+
+
+.attuned {
+    color: #e2b327;
+}
+
+.not-attunable {
+    color: rgba(102, 101, 103, 0.45);
 }

@@ -195,11 +195,6 @@ class BaseItemForm(ModelForm):
         'quantity'
 
 
-class TestView(generic.FormView):
-    template_name = 'test.html'
-    form_class = BaseItemForm
-
-
 class WeaponDetailView(DetailView):
     model = Weapon
     template_name = 'item_management/item_view_template.html'

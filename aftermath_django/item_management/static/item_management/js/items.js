@@ -27,6 +27,7 @@ $(document).ready(function () {
         return cookieValue;
     }
 
+
     const csrftoken = getCookie('csrftoken');
 
 
@@ -38,14 +39,22 @@ $(document).ready(function () {
         columns:
             [
                 {
+                    "data": null,
                     "className": 'details-control',
                     "orderable": false,
                     "ordering": false,
-                    "data": null,
                     "defaultContent": '<i class="fas fa-chevron-right"></i>'
                 },
                 {"data": "model_type", visible: false},
-                {"data": "name"},
+                {
+                    "data": "name", "className": "name_column",
+                    "render": function (data, type, row, meta) {
+                        let id = row.id
+                        let model_name = row.model_name
+                        let loc = `/items/${model_name}/${id}`
+                        return `<a href=${loc}>${data}</a>`
+                    }
+                },
                 {"data": "text_description", visible: false},
                 {"data": "rarity", visible: false},
                 {"data": "wondrous", visible: false},
@@ -83,7 +92,7 @@ $(document).ready(function () {
             'mode': 'same-origin',
             "data": function (data, settings) {
                 let js_data = JSON.stringify(data)
-                console.log(js_data)
+                // console.log(js_data)
                 console.log(settings)
                 return js_data
             },
@@ -94,14 +103,13 @@ $(document).ready(function () {
                 json.recordsFiltered = json.total
                 let js_data = JSON.stringify(json)
 
-                console.log(js_data)
                 return js_data; // return JSON string
             },
         },
         createdRow: function (row) {
             let td = $(row).find(".truncate");
             td.attr("title", td.html());
-        }
+        },
     });
 
 
