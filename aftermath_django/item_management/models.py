@@ -71,6 +71,7 @@ class Item(models.Model):
     def clean(self):
         if self.is_attuned and (self.player is None or self.player.name == 'Party'):
             raise ValidationError('Must have an owner to be attuned', params={self.is_attuned: 'Error'})
+        super(Item, self).clean()
 
     class Meta:
         abstract = True
@@ -200,6 +201,11 @@ class Stackable(Item):
 class Equippable(Item):
     item_slot = models.ForeignKey(ItemSlot,
                                   on_delete=models.DO_NOTHING)
+    is_equipped = models.BooleanField(default=False)
+
+    def clean(self):
+        if self.is_equipped and not (self.player or self.player == 'Party'):
+            raise ValidationError("Cannot be equipped without an owner!", params={self.is_equipped})
 
     class Meta:
         abstract = True

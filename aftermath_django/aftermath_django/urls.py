@@ -22,6 +22,7 @@ from django.urls import path, include
 #     path('admin/', admin.site.urls),
 #     path('inventory/', include('item_management.urls')),
 # ]
+from django.views.generic import TemplateView
 from rest_framework import routers
 
 from aftermath_django import settings
@@ -42,6 +43,7 @@ router.register(r'weapons', views.WeaponViewSet)
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
     # path('/', include('')) # login page here
+    path('', TemplateView.as_view(template_name='item_management/index.html')),
     path('api/', include(router.urls)),
     path('admin/', admin.site.urls),
     path('tinymce/', include('tinymce.urls')),

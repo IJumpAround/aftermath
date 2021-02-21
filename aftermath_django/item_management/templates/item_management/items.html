@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <title>Title</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script type="text/javascript">     window.CSRF_TOKEN = "{{ csrf_token }}"; </script>
     <link rel="stylesheet" type="text/css" href="{% static "item_management/css/index.css" %}">
     <link rel="stylesheet" type="text/css" href="{% static "item_management/css/tables.css" %}">
     <link rel="stylesheet" type="text/css" href="{% static "item_management/css/representations.css" %}">
@@ -16,30 +17,13 @@
 </head>
 
 <body>
-<nav class="navbar navbar-expand-md">
-    <a class="navbar-brand" href="#">Logo</a>
-    <button class="navbar-toggler navbar-dark" type="button" data-toggle="collapse" data-target="#main-navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="main-navigation">
-        <ul class="navbar-nav">
-            <li class="nav-item">
-                <a class="nav-link" href="#">Inventory</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">About</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">Contact</a>
-            </li>
-        </ul>
-    </div>
-</nav>
+{% include 'item_management/navbar.html' %}
 
 <div class="row my-2">
     <div class="col-1"></div>
     <div class="col-10">
         <div class="container border table-container" style="height: 100vh">
+
             <table id="table_id" class="table table-bordered table-striped table-hover">
                 <thead class="table-dark">
                 <tr>

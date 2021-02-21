@@ -4,12 +4,12 @@ from django import forms
 from django.contrib.auth.models import User, Group
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.forms import ModelForm
+from django.shortcuts import render
 from django.utils.log import request_logger
 from django.views import generic
-from django.views.generic import TemplateView
+from django.views.generic import DetailView
 from rest_framework import viewsets, permissions
-from rest_framework.decorators import action
-from rest_framework.request import Request
+from rest_framework.decorators import action, api_view
 from rest_framework.response import Response
 from tinymce.widgets import TinyMCE
 
@@ -131,17 +131,15 @@ class ViewPaginatorMixin(object):
         return data
 
 
-class IndexView(TemplateView):
-    template_name = 'index.html'
-
-
-class MainItemsView(ViewPaginatorMixin, viewsets.ViewSet):
-
-    def post(self, request: Request):
+@api_view(("GET", "POST"))
+def aftermath_index(request):
+    data = request.data
+    if request.method == 'GET':
+        return render(request, template_name='item_management/items.html')
+    else:
         request_logger.info('get_all_items')
-        request_logger.info(request.data)
 
-        body = request.data
+        body = data
 
         limit = int(body.get('length', 25))
         page = int(body.get('start', 1)) // int(limit)
@@ -173,19 +171,7 @@ class MainItemsView(ViewPaginatorMixin, viewsets.ViewSet):
         queryset = queryset.order_by(order_by)
 
         items = BaseItemSerializer(queryset, many=True, context={'request': request}).data
-        return Response({"resources": self.paginate(items, page, limit)})
-
-    def get(self, request: Request):
-        request_logger.info('get_all_items')
-
-        page = request.query_params.get('page', 1)
-        limit = request.query_params.get('limit', 25)
-        order_by = request.query_params.get('order_by', 'name')
-        queryset = Weapon.query_common_base_fields().union(Armor.query_common_base_fields()).union(
-            Stackable.query_common_base_fields()).order_by(order_by)
-
-        items = BaseItemSerializer(queryset, many=True, context={'request': request}).data
-        return Response({"resources": self.paginate(items, page, limit)})
+        return Response({"resources":  {'data': items}})
 
 
 class BaseItemForm(ModelForm):
@@ -202,10 +188,15 @@ class BaseItemForm(ModelForm):
     class Meta:
         abstract = True
         model = Weapon
-        fields = 'name', 'flavor', 'rarity', 'wondrous', 'requires_attunement',  'is_attuned', 'player', 'obtained_from',
+        fields = 'name', 'flavor', 'rarity', 'wondrous', 'requires_attunement', 'is_attuned', 'player', 'obtained_from',
         'quantity'
 
 
 class TestView(generic.FormView):
     template_name = 'test.html'
     form_class = BaseItemForm
+
+
+class WeaponDetailView(DetailView):
+    model = Weapon
+    template_name = 'item_management/item_view_template.html'
