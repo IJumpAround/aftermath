@@ -141,8 +141,8 @@ def aftermath_index(request):
 
         body = data
 
-        limit = int(body.get('length', 25))
-        page = int(body.get('start', 1)) // int(limit)
+        length = int(body.get('length', 25))
+        start = int(body.get('start', 0)) // int(length)
         order_by = body.get('order')
 
         search_term = body.get('search', {}).get('value')
@@ -170,8 +170,11 @@ def aftermath_index(request):
 
         queryset = queryset.order_by(order_by)
 
+        total = len(queryset)
+        queryset = queryset[start: length]
+
         items = BaseItemSerializer(queryset, many=True, context={'request': request}).data
-        return Response({"resources":  {'data': items}})
+        return Response({'data': items, 'total': total, 'size': len(queryset)})
 
 
 class BaseItemForm(ModelForm):

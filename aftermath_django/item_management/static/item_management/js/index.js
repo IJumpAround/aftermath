@@ -76,13 +76,12 @@ $(document).ready(function () {
 
             url: 'http://localhost:8000/items/',
             "contentType": 'application/json',
-            "headers": {'HTTP_X_CSRFTOKEN': csrftoken,
-            'X-CSRFToken': csrftoken},
+            "headers": {
+                'X-CSRFToken': csrftoken
+            },
             "type": "POST",
             'mode': 'same-origin',
             "data": function (data, settings) {
-                data.csrfmiddlewaretoken = '{{csrftoken}}'
-                // data.csrfmiddlewaretoken = csrftoken
                 let js_data = JSON.stringify(data)
                 console.log(js_data)
                 console.log(settings)
@@ -91,9 +90,8 @@ $(document).ready(function () {
 
             dataFilter: function (data) {
                 let json = jQuery.parseJSON(data);
-                json.recordsTotal = json.resources.total_items;
-                json.recordsFiltered = json.resources.total_items
-                json.data = json.resources.data;
+                json.recordsTotal = json.total;
+                json.recordsFiltered = json.total
                 let js_data = JSON.stringify(json)
 
                 console.log(js_data)

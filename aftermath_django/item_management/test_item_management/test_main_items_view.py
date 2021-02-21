@@ -1,3 +1,4 @@
+from django.http import HttpResponse
 from django.test import TestCase
 from django.urls import reverse, resolve
 import pprint
@@ -11,26 +12,31 @@ class ItemsViewTestClass(TestCase):
         self.item_url = '/items'
         add_test_data_to_class(self)
 
-    def test_get_request_to_items(self):
+    def test_get_request_to_items_returns_html(self):
         url = reverse('item_management:items')
-        response = self.client.get(url)
+        response: HttpResponse = self.client.get(url)
 
-        resources = response.json().get('resources').get('data')
-        print(resources)
-        pprint.pprint(resources)
+        self.assertIn('text/html', response['content-type'])
+
+    def test_post_request_to_items_returns_json(self):
+        url = reverse('item_management:items')
+        response = self.client.post(url)
+
+        js = response.json()
+        self.assertIn('data', js)
 
     def test_post_request_to_items(self):
         url = reverse('item_management:items')
         response = self.client.post(url)
 
-        resources = response.json().get('resources').get('data')
+        resources = response.json().get('data')
         print(resources)
         pprint.pprint(resources)
 
     def test_quantity_on_items(self):
         response = self.client.post('/items/')
 
-        items = response.json().get('resources').get('data')
+        items = response.json().get('data')
 
         for item in items:
             self.assertIsNotNone(item.get('quantity'))
@@ -48,10 +54,9 @@ class ItemsViewTestClass(TestCase):
         start = 1
         length = 2
 
-        resources = self.client.post('/items/', {'start': start, 'length': length}).json().get('resources')
+        data = self.client.post('/items/', {'start': start, 'length': length}).json().get('data')
 
-        self.assertEqual(len(resources.get('data')), length)
-        self.assertEqual(resources.get('next_page'), 2)
+        self.assertEqual(len(data), length)
 
     def test_pagination_order(self):
 
@@ -77,19 +82,17 @@ class ItemsViewTestClass(TestCase):
              'search': {'value': '', 'regex': False}}], 'order': [{'column': 7, 'dir': 'desc'}], 'start': 0,
                         'length': 10, 'search': {'value': '', 'regex': False}}
 
-        resources = self.client.post('/items/', data=request_body, content_type='application/json').json().get('resources')
-        items = resources.get('data')
+        items = self.client.post('/items/', data=request_body, content_type='application/json').json().get('data')
 
         s = sorted(items, key=lambda i: i['player'])
 
         for i in range(len(s)):
             self.assertEqual(s[i]['player'], items[i]['player'])
-        print(resources)
+        print(items)
 
     def test_default_pagination_order_uses_name(self):
 
-        resources = self.client.post('/items/').json().get('resources')
-        items = resources.get('data')
+        items = self.client.post('/items/').json().get('data')
 
         s = sorted(items, key=lambda i: i['name'])
 
