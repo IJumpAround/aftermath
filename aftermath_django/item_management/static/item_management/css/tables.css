@@ -1,3 +1,17 @@
+:root {
+  --main-bg-color: #464454;
+  --compliment: #756b57;
+    --bright-compliment: #b7a36c;
+    --analogous-1: #576175;
+    --die-highlight-color: #A89F62;
+    --die-highlight-faint: #cdc79f;
+    --die-highlight-color-vibrant: #c1b353;
+    --die-muted-brown: #544D44;
+    --die-brown: #4e443a;
+    --main-bg-color-lighter: #76718f;
+}
+
+
 .truncate {
     max-width: 75px;
     white-space: nowrap;
@@ -31,14 +45,19 @@ table td {
 div .table-container {
     padding-left: 30px;
     padding-right: 30px;
-    padding-top: 15px
+    padding-top: 15px;
+    background: #efefef !important;
 }
 
 
 .attuned {
-    color: #e2b327;
+    color: var(--die-highlight-color-vibrant);
+}
+
+.unattuned {
+    color: var(--main-bg-color-lighter)
 }
 
 .not-attunable {
-    color: rgba(102, 101, 103, 0.45);
+    color:var(--compliment)
 }

@@ -1,53 +1,44 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Aftermath</title>
+{% extends 'item_management/base_template.html' %}
 
+{% block additional_css %}
     {% load static %}
-    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" href="{% static "item_management/css/items.css" %}">
     <link rel="stylesheet" type="text/css" href="{% static "item_management/css/tables.css" %}">
     <link rel="stylesheet" type="text/css"
           href="{% static "lib/fontawesome/fontawesome-free-5.15.2-web/css/all.css" %}">
-</head>
 
-<body>
-{% include 'item_management/navbar.html' %}
+{% endblock additional_css %}
 
-<div class="row my-2">
-    <div class="col-1"></div>
-    <div class="col-10">
-        <div class="container-fluid border table-container" style="height: 100vh">
-            <div class="row"></div>
-            <div class="col-">
-                <table id="table_id" class="table table-bordered table-striped table-hover">
-                    <thead class="table-dark">
-                    <tr>
-                        <th></th>
-                        <th>Type</th>
-                        <th>Name</th>
-                        <th>Description</th>
-                        <th>Rarity</th>
-                        <th>Wondrous</th>
-                        <th>Attunement</th>
-                        <th>Owner</th>
-                        <th>Count</th>
-                    </tr>
-                    </thead>
-                </table>
-            </div>
-        </div>
+{% block content %}
+
+    <div class="row"></div>
+    <div class="col-">
+        <table id="table_id" class="table table-bordered table-striped table-hover">
+            <thead class="table-dark">
+            <tr>
+                <th></th>
+                <th>Type</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Rarity</th>
+                <th>Wondrous</th>
+                <th>Attunement</th>
+                <th>Owner</th>
+                <th>Count</th>
+            </tr>
+            </thead>
+        </table>
     </div>
-</div>
-<div class="col-1"></div>
-</div>
-<script src="{% static "lib/jquery/js/jquery-3.5.1.min.js" %} "></script>
-<script src="{% static "lib/bootstrap/js/bootstrap.min.js" %} "></script>
-<script type="text/javascript" src="{% static "lib/DataTables/datatables.min.js" %} "></script>
-<script type="text/javascript" src="{% static "item_management/js/items.js" %}"></script>
-</body>
-</html>
+
+{% endblock content %}
+{% block scripts %}
+    {% load static %}
+    <script src="{% static "lib/jquery/js/jquery-3.5.1.min.js" %} "></script>
+    <script src="{% static "lib/bootstrap/js/bootstrap.min.js" %} "></script>
+    <script type="text/javascript" src="{% static "lib/DataTables/datatables.min.js" %} "></script>
+    <script type="text/javascript" src="{% static "item_management/js/items.js" %}"></script>
+{% endblock scripts %}
+
 
 
 

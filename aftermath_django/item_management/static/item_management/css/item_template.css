@@ -1,0 +1,54 @@
+h1 {
+    font-family: Georgia, serif;
+}
+
+.item-name-div {
+    background: var(--die-highlight-color);
+    border: 3px double var(--die-muted-brown);
+    text-align: center;
+}
+
+.item-details-div {
+    height: 100vh;
+}
+
+.table-container {
+    padding-left: 0 !important;
+    padding-right: 0!important;
+    padding-top: 0!important;
+}
+
+i.item-flavor {
+    font-family: Luminari, serif;
+
+}
+
+div.item-flavor {
+    --curve-px: 16px;
+    background: var(--die-highlight-faint);
+    border: 3px double var(--die-muted-brown);
+    border-top: 0;
+    border-bottom-left-radius: var(--curve-px);
+    border-bottom-right-radius: var(--curve-px);
+}
+
+
+div.item-description {
+    border: 3px double var(--die-muted-brown);
+    font-size: 18px;
+}
+
+hr.solid {
+  border: 2px solid var(--die-brown);
+    background-color: var(--die-brown);
+    /*color: green!important;*/
+    /*background-color: green!important;*/
+    /*background: var(--die-muted-brown);*/
+    /*border-color: var(--die-muted-brown);*/
+}
+
+
+/*div.item-details-div div.col-12 div {*/
+/*    padding-left: 120px;*/
+/*    margin-left: 20px;*/
+/*}*/

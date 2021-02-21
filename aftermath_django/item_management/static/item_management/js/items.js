@@ -65,12 +65,12 @@ $(document).ready(function () {
                         let requires = data
                         let attuned = row.is_attuned
 
-                        let placeholder = ""
+                        let placeholder
 
                         if (requires && attuned) {
                             placeholder = "<i class='fas fa-lock attuned'/>"
                         } else if (requires) {
-                            placeholder = '<i class="fas fa-lock-open"/>'
+                            placeholder = '<i class="fas fa-lock-open unattuned"/>'
                         } else {
                             placeholder = '<i class="fas fa-times not-attunable"/>'
                         }

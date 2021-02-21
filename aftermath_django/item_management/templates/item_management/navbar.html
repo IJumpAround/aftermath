@@ -1,10 +1,7 @@
-{% load static %}
-<link rel="stylesheet" type="text/css" href="{% static "lib/bootstrap/css/bootstrap.min.css" %}">
-<link rel="stylesheet" type="text/css" href="{% static "item_management/css/nav.css" %}">
-<link rel="stylesheet" type="text/css" href="{% static "lib/bootstrap/css/bootstrap.min.css" %}">
-<link rel="stylesheet" type="text/css" href="{% static "lib/DataTables/datatables.min.css" %}">
 <nav class="navbar navbar-expand-md">
-    <a class="navbar-brand" href="#">Logo</a>
+    {% load static %}
+    <a class="navbar-brand" href="{% url "item_management:items" %}">
+        <img class="navbar-logo" alt="logo" src="{% static "item_management/img/img.png" %}"/></a>
     <button class="navbar-toggler navbar-dark" type="button" data-toggle="collapse" data-target="#main-navigation">
         <span class="navbar-toggler-icon"></span>
     </button>

@@ -1,0 +1,52 @@
+{% extends 'item_management/base_template.html' %}
+
+{% block additional_css %}
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static "item_management/css/item_template.css" %}">
+
+{% endblock additional_css %}
+
+{% block content %}
+    <div class="item-details-div container-fluid">
+        <div class="row">
+            <div class="col-sm-1"></div>
+            <div class="col-sm-12 col-lg-10">
+                <div class="row ">
+                    <div class="col-1"></div>
+                    <div class="col-10 item-name-div">
+                        <h1>{{ item.name }}</h1>
+                    <div class="col-1"></div>
+                    </div>
+                </div>
+                {% if item.flavor %}
+                    <div class="row">
+                    <div class="col-1"></div>
+                        <div class="col-10 item-flavor">
+                        <br>
+                            <h3>
+                                <i class="item-flavor">{{ item.flavor }}</i>
+                            </h3>
+                            <br>
+                        </div>
+                    <div class="col-1"></div>
+                    </div>
+                {% endif %}
+
+                <hr class="solid">
+                {% if item.text_description %}
+                    <div class="row" style="margin-top: 10px;">
+                    <div class="col item-description">
+                    {{ item.text_description|linebreaks }}
+                    </div>
+                    </div>
+
+                {% endif %}
+
+            </div>
+            <div class="col-sm-1 d-none d-sm-block">
+            </div>
+        </div>
+    </div>
+
+
+{% endblock content %}

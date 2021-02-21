@@ -1,19 +1,47 @@
 
 .navbar {
-    background:#6ab446;
+
+      border-bottom: 2px solid var(--analogous-1);
+    background: var(--main-bg-color)!important;
 }
+
 .nav-link,
 .navbar-brand {
     color: #fff;
     cursor: pointer;
 }
+
 .nav-link {
     margin-right: 1em !important;
 }
+
 .nav-link:hover {
     color: #000;
 }
+
 .navbar-collapse {
     justify-content: flex-end;
 }
 
+
+.navbar-logo {
+    border-radius: 50%;
+    padding: 5px;
+    width: 150px;
+
+    max-width: 50%;
+    height: auto;
+    opacity: 100%;
+
+    transition: opacity 2s;
+
+}
+
+
+.navbar-logo:hover {
+    opacity: 40%;
+}
+
+.table-dark {
+
+}

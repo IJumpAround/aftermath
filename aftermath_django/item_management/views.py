@@ -4,9 +4,9 @@ from django import forms
 from django.contrib.auth.models import User, Group
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.forms import ModelForm
-from django.shortcuts import render
+from django.http import HttpResponseNotFound
+from django.shortcuts import render, get_object_or_404
 from django.utils.log import request_logger
-from django.views import generic
 from django.views.generic import DetailView
 from rest_framework import viewsets, permissions
 from rest_framework.decorators import action, api_view
@@ -195,6 +195,18 @@ class BaseItemForm(ModelForm):
         'quantity'
 
 
-class WeaponDetailView(DetailView):
-    model = Weapon
-    template_name = 'item_management/item_view_template.html'
+def generic_item_view(request, item_type: str, pk: int):
+
+    if item_type.lower() == 'weapon':
+        clazz = Weapon
+    elif item_type.lower() == 'armor':
+        clazz = Armor
+    elif item_type.lower() == 'stackable':
+        clazz = Stackable
+    else:
+        return HttpResponseNotFound()
+
+    item = get_object_or_404(clazz, pk=pk)
+
+    return render(request, template_name='item_management/item_template.html', context=dict(item=item))
+
