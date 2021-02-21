@@ -46,7 +46,7 @@ div .table-container {
     padding-left: 30px;
     padding-right: 30px;
     padding-top: 15px;
-    background: #efefef !important;
+    background: #ffffff !important;
 }
 
 
@@ -61,3 +61,8 @@ div .table-container {
 .not-attunable {
     color:var(--compliment)
 }
+
+
+/*td a {*/
+/*    color: #1A63AD;*/
+/*}*/
