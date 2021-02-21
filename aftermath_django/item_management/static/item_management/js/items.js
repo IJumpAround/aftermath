@@ -46,7 +46,7 @@ $(document).ready(function () {
                 },
                 {"data": "model_type", visible: false},
                 {"data": "name"},
-                {"data": "text_description", "className": "truncate"},
+                {"data": "text_description", visible: false},
                 {"data": "rarity", visible: false},
                 {"data": "wondrous", visible: false},
                 {
