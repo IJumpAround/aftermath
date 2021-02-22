@@ -3,50 +3,101 @@
 {% block additional_css %}
     {% load static %}
     <link rel="stylesheet" type="text/css" href="{% static "item_management/css/item_template.css" %}">
+    <link rel="stylesheet" type="text/css"
+          href="{% static "lib/fontawesome/fontawesome-free-5.15.2-web/css/all.min.css" %}">
 
 {% endblock additional_css %}
 
 {% block content %}
     <div class="item-details-div container-fluid">
         <div class="row">
-            <div class="col-sm-1"></div>
-            <div class="col-sm-12 col-lg-10">
+            <div class="col-lg-2 col-md-1 d-none d-md-block"></div>
+            <div class="col-sm-12 col-md-10 col-lg-8">
                 <div class="row ">
-                    <div class="col-1"></div>
-                    <div class="col-10 item-name-div">
-                        <h1>{{ item.name }}</h1>
-                    <div class="col-1"></div>
+                    <div class="col item-name-div">
+                        {% if item.stackable_type %}
+                            <h1>{{ item.name }} x {{ item.quantity }}</h1>
+                        {% else %}
+                            <h1>{{ item.name }}</h1>
+                        {% endif %}
                     </div>
                 </div>
+
                 {% if item.flavor %}
                     <div class="row">
-                    <div class="col-1"></div>
-                        <div class="col-10 item-flavor">
-                        <br>
+
+                        <div class="col item-flavor">
+                            <br>
                             <h3>
                                 <i class="item-flavor">{{ item.flavor }}</i>
                             </h3>
                             <br>
                         </div>
-                    <div class="col-1"></div>
+
                     </div>
                 {% endif %}
-
-                <hr class="solid">
+            </div>
+            <div class="col-lg-2 col-md-1 d-none d-md-block"></div>
+        </div>
+        <div class="row">
+            <div class="col">
                 {% if item.text_description %}
+                    <hr class="solid">
                     <div class="row" style="margin-top: 10px;">
-                    <div class="col item-description">
-                    {{ item.text_description|linebreaks }}
-                    </div>
+                        <div class="col item-description">
+                            {{ item.text_description|linebreaks }}
+                        </div>
                     </div>
 
                 {% endif %}
 
+                <div class="row">
+                    <div class="col-5">
+                        <div class="container-fluid">
+                            <br>
+                            Current Owner: {{ item.player }}
+                        </div>
+                    </div>
+                    <div class="col-2"></div>
+                    <div class="col-5">
+                        <table class="table rhs-info-table">
+                            {% with responses="far fa-check-square,far fa-square,far fa-square" %}
+                                <tr>
+                                    <td>Requires attunement</td>
+                                    <td><i class="{{ item.requires_attunement|yesno:responses }}"> </i></td>
+                                </tr>
+                                <tr>
+                                    <td>Is Attuned</td>
+                                    <td><i class="{{ item.is_attuned|yesno:responses }}"> </i></td>
+                                </tr>
+                                <tr>
+                                    <td>Wondrous</td>
+                                    <td><i class="{{ item.wondrous|yesno:responses }}"> </i></td>
+                                </tr>
+                                <tr>
+                                    <td>Equipped</td>
+                                    <td><i class="{{ item.is_equipped|yesno:responses }}"> </i></td>
+                                </tr>
+
+                            {% endwith %}
+                        </table>
+                    </div>
+                </div>
+
+
             </div>
-            <div class="col-sm-1 d-none d-sm-block">
-            </div>
+
         </div>
     </div>
 
 
+
 {% endblock content %}
+
+requires_attunement:
+is_attuned:
+wondrous:
+equipped:
+
+rarity:
+trait_list

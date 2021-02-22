@@ -48,6 +48,14 @@ hr.solid {
 }
 
 
+.rhs-info-table td {
+    text-align: left;
+}
+
+.rhs-info-table i {
+    color: var(--main-bg-color);
+}
+
 /*div.item-details-div div.col-12 div {*/
 /*    padding-left: 120px;*/
 /*    margin-left: 20px;*/
