@@ -9,7 +9,8 @@
 {% endblock additional_css %}
 
 {% block content %}
-    <div class="item-details-div container-fluid">
+
+    <div class="item-details-div">
         <div class="row">
             <div class="col-lg-2 col-md-1 d-none d-md-block"></div>
             <div class="col-sm-12 col-md-10 col-lg-8">
@@ -40,64 +41,76 @@
             <div class="col-lg-2 col-md-1 d-none d-md-block"></div>
         </div>
         <div class="row">
-            <div class="col-12">
+            <div class="col-12" >
                 {% if item.text_description %}
                     <hr class="solid">
                     <div class="row" style="margin-top: 10px;">
-                        <div class="col item-description">
+                        <div class="col-12">
+                            <div class="item-description">
                             {{ item.text_description|linebreaks }}
+                            </div>
                         </div>
                     </div>
 
+                    <hr class="solid">
                 {% endif %}
-
-                <div class="row">
-                    <div class="col-5">
-                        <table class="table lhs-info-table">
-                            <tr>
-                                <td>Current Owner:</td>
-                                <td>{{ item.player }}</td>
-                            </tr>
-                            <tr>
-                                <td>Rarity:</td>
-                                <td>{{ item.rarity }}</td>
-                            </tr>
-                        </table>
-                    </div>
-                    <div class="col-2"></div>
-                    <div class="col-5">
-                        <table class="table rhs-info-table">
-                            {% with responses="far fa-check-square,far fa-square,far fa-square" %}
-                                <tr>
-                                    <td>Requires attunement</td>
-                                    <td><i class="{{ item.requires_attunement|yesno:responses }}"> </i></td>
-                                </tr>
-                                <tr>
-                                    <td>Is Attuned</td>
-                                    <td><i class="{{ item.is_attuned|yesno:responses }}"> </i></td>
-                                </tr>
-                                <tr>
-                                    <td>Wondrous</td>
-                                    <td><i class="{{ item.wondrous|yesno:responses }}"> </i></td>
-                                </tr>
-                                <tr>
-                                    <td>Equipped</td>
-                                    <td><i class="{{ item.is_equipped|yesno:responses }}"> </i></td>
-                                </tr>
-
-                            {% endwith %}
-                        </table>
-                    </div>
-                </div>
             </div>
         </div>
+        <div class="row">
+            <div class="col-5">
+                <table class="table lhs-info-table">
+                    <tr>
+                        <td>Current Owner:</td>
+                        <td>{{ item.player }}</td>
+                    </tr>
+                    <tr>
+                        <td>Rarity:</td>
+                        <td>{{ item.rarity }}</td>
+                    </tr>
+                </table>
+            </div>
+            <div class="col-2"></div>
+            <div class="col-5">
+                <table class="table rhs-info-table">
+                    {% with responses="far fa-check-square,far fa-square,far fa-square" %}
+                        <tr>
+                            <td>Requires attunement</td>
+                            <td><i class="{{ item.requires_attunement|yesno:responses }}"> </i></td>
+                        </tr>
+                        <tr>
+                            <td>Is Attuned</td>
+                            <td><i class="{{ item.is_attuned|yesno:responses }}"> </i></td>
+                        </tr>
+                        {% if item.is_equipped != None %}
+                        <tr>
+                            <td>Equipped</td>
+                            <td><i class="{{ item.is_equipped|yesno:responses }}"> </i></td>
+                        </tr>
+                        {% endif %}
+                    {% endwith %}
+                </table>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                {% for trait in item.weapontrait_set.all %}
+                    <div class="row">
+                        <div class="col-12">
+                            {% include 'item_management/trait_template.html' with trait=trait %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="row"></div>
     </div>
+
 {% endblock content %}
 
-requires_attunement:
-is_attuned:
-wondrous:
-equipped:
-
-rarity:
-trait_list
+{#requires_attunement:#}
+{#is_attuned:#}
+{#wondrous:#}
+{#equipped:#}
+{##}
+{#rarity:#}
+{#trait_list#}
