@@ -301,6 +301,16 @@ class WeaponTraitTemplate(TraitTemplate):
                                    default=WeaponType.MELEE)
 
 
+class TraitNameFormatterMixin:
+    def to_string(self):
+        template = self.template
+        trait_name = template.trait_name
+        if template.scaling_trait:
+            match = self.regex.search(template.trait_name)
+            trait_name = f'{trait_name[:match.start(1)]}{self.x_value}{trait_name[match.end(1):]}'
+        return trait_name
+
+
 # TODO x_value is not constrained in the admin panel, null x_value can be assigned to scalable traits
 class TraitInstanceBase(models.Model):
     x_value = models.PositiveSmallIntegerField(null=True,
@@ -345,15 +355,8 @@ class TraitInstanceBase(models.Model):
 
         return clazz.objects.create(template=template, item_id=item, **kwargs)
 
-    def to_string(self, template: TraitTemplate):
-        trait_name = template.trait_name
-        if template.scaling_trait:
-            match = self.regex.search(template.trait_name)
-            trait_name = f'{trait_name[:match.start(1)]}{self.x_value}{trait_name[match.end(1):]}'
-        return trait_name
 
-
-class ArmorTrait(TraitInstanceBase):
+class ArmorTrait(TraitInstanceBase, TraitNameFormatterMixin):
     template = models.ForeignKey(ArmorTraitTemplate, on_delete=models.CASCADE)
     item = models.ForeignKey(Armor, on_delete=models.SET_NULL,
                              null=True,
@@ -361,10 +364,10 @@ class ArmorTrait(TraitInstanceBase):
                              default=None)
 
     def __str__(self):
-        return f"{super().to_string(self.template)} on {self.item}"
+        return f"{super().to_string()} on {self.item}"
 
 
-class WeaponTrait(TraitInstanceBase):
+class WeaponTrait(TraitInstanceBase, TraitNameFormatterMixin):
     template = models.ForeignKey(WeaponTraitTemplate, on_delete=models.CASCADE)
     weapon_type = models.CharField(blank=False,
                                    choices=WeaponType.choices,
@@ -377,4 +380,4 @@ class WeaponTrait(TraitInstanceBase):
                              default=None)
 
     def __str__(self):
-        return f"{super().to_string(self.template)} on {self.item}"
+        return f"{super().to_string()} on {self.item}"

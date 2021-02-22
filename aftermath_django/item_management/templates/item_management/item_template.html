@@ -41,13 +41,13 @@
             <div class="col-lg-2 col-md-1 d-none d-md-block"></div>
         </div>
         <div class="row">
-            <div class="col-12" >
+            <div class="col-12">
                 {% if item.text_description %}
                     <hr class="solid">
                     <div class="row" style="margin-top: 10px;">
                         <div class="col-12">
                             <div class="item-description">
-                            {{ item.text_description|linebreaks }}
+                                {{ item.text_description|linebreaks }}
                             </div>
                         </div>
                     </div>
@@ -82,10 +82,10 @@
                             <td><i class="{{ item.is_attuned|yesno:responses }}"> </i></td>
                         </tr>
                         {% if item.is_equipped != None %}
-                        <tr>
-                            <td>Equipped</td>
-                            <td><i class="{{ item.is_equipped|yesno:responses }}"> </i></td>
-                        </tr>
+                            <tr>
+                                <td>Equipped</td>
+                                <td><i class="{{ item.is_equipped|yesno:responses }}"> </i></td>
+                            </tr>
                         {% endif %}
                     {% endwith %}
                 </table>
@@ -93,13 +93,23 @@
         </div>
         <div class="row">
             <div class="col">
+                {% if item.weapontrait_set or item.armortrait_set %}
+                    <h3>Traits</h3>
+
+                {% endif %}
                 {% for trait in item.weapontrait_set.all %}
                     <div class="row">
-                        <div class="col-12">
-                            {% include 'item_management/trait_template.html' with trait=trait %}
-                        </div>
+                        {% include 'item_management/trait_template.html' with trait=trait %}
                     </div>
+                    <br>
                 {% endfor %}
+                {% for trait in item.armortrait_set.all %}
+                    <div class="row">
+                        {% include 'item_management/trait_template.html' with trait=trait %}
+                    </div>
+                    <br>
+                {% endfor %}
+
             </div>
         </div>
         <div class="row"></div>

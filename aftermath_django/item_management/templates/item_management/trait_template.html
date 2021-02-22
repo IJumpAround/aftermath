@@ -1,2 +1,5 @@
-
-    {{ trait }}
+<div class="col">
+    <h6 class="trait">{{ trait.to_string }}</h6>
+    <span class="trait-tier">Tier: {{ trait.template.tier.level }}</span>
+    <p class="trait-description">{{ trait.template.description }}</p>
+</div>

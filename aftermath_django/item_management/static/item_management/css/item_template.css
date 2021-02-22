@@ -46,5 +46,13 @@ hr.solid {
 
 
 i.fa-check-square {
-    color: #026702;
+    color: #044a04;
+}
+
+span.trait-tier {
+    font-size: 14px;
+}
+
+p.trait-description {
+    text-indent: 25px;
 }
