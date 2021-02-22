@@ -191,7 +191,7 @@ class BaseItemForm(ModelForm):
     class Meta:
         abstract = True
         model = Weapon
-        fields = 'name', 'flavor', 'rarity', 'wondrous', 'requires_attunement', 'is_attuned', 'player', 'obtained_from',
+        fields = 'name', 'flavor', 'rarity', 'requires_attunement', 'is_attuned', 'player', 'obtained_from',
         'quantity'
 
 

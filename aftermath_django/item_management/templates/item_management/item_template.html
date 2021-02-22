@@ -40,7 +40,7 @@
             <div class="col-lg-2 col-md-1 d-none d-md-block"></div>
         </div>
         <div class="row">
-            <div class="col">
+            <div class="col-12">
                 {% if item.text_description %}
                     <hr class="solid">
                     <div class="row" style="margin-top: 10px;">
@@ -53,10 +53,16 @@
 
                 <div class="row">
                     <div class="col-5">
-                        <div class="container-fluid">
-                            <br>
-                            Current Owner: {{ item.player }}
-                        </div>
+                        <table class="table lhs-info-table">
+                            <tr>
+                                <td>Current Owner:</td>
+                                <td>{{ item.player }}</td>
+                            </tr>
+                            <tr>
+                                <td>Rarity:</td>
+                                <td>{{ item.rarity }}</td>
+                            </tr>
+                        </table>
                     </div>
                     <div class="col-2"></div>
                     <div class="col-5">
@@ -83,15 +89,9 @@
                         </table>
                     </div>
                 </div>
-
-
             </div>
-
         </div>
     </div>
-
-
-
 {% endblock content %}
 
 requires_attunement:

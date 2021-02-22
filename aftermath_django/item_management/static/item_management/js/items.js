@@ -58,7 +58,7 @@ $(document).ready(function () {
                 },
                 {"data": "text_description", visible: false},
                 {"data": "rarity", visible: false},
-                {"data": "wondrous", visible: false},
+                // {"data": "wondrous", visible: false},
                 {
                     "data": "requires_attunement", "className": "attunement_col icon",
                     "render": function (data, type, row, meta) {
@@ -84,7 +84,7 @@ $(document).ready(function () {
 
         ajax: {
 
-            url: 'http://localhost:8000/items/',
+            url: 'http://127.0.0.1:8000/items/',
             "contentType": 'application/json',
             "headers": {
                 'X-CSRFToken': csrftoken

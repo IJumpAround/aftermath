@@ -113,7 +113,6 @@ class BaseItemSerializer(serializers.Serializer):
     name = serializers.CharField()
     text_description = serializers.CharField()
     rarity = RaritySerializer()
-    wondrous = serializers.BooleanField()
     requires_attunement = serializers.BooleanField()
     player = serializers.StringRelatedField()
     quantity = serializers.IntegerField()

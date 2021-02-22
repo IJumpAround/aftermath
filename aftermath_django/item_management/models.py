@@ -83,7 +83,6 @@ class Item(models.Model):
                                null=True,
                                blank=True)
 
-    wondrous = models.BooleanField(default=False)
     requires_attunement = models.BooleanField(default=False)
     is_attuned = models.BooleanField(default=False)
 
@@ -97,13 +96,14 @@ class Item(models.Model):
                                      blank=True)
 
     quantity = models.IntegerField(default=1)
+    value = models.IntegerField(default=None, null=True)
 
     @classmethod
     def query_common_base_fields(cls):
         """To better return a consistent data structure in the main view we retrieve useful properties that
         are common to most items
         """
-        query = cls.objects.all().only('id', 'name', 'text_description', 'rarity', 'wondrous', 'requires_attunement',
+        query = cls.objects.all().only('id', 'name', 'text_description', 'rarity', 'requires_attunement',
                                        'is_attuned', 'player__name', 'quantity').annotate(
             model_type=Value(cls._meta.verbose_name_plural, output_field=models.CharField())).annotate(
             model_name=Value(cls._meta.model_name, output_field=models.CharField()))
