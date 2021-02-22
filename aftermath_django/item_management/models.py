@@ -2,7 +2,6 @@ import re
 from typing import Optional, Union
 
 from django.db import models, transaction
-from django.core.validators import MaxValueValidator
 from django.db.models import Count, Q, ObjectDoesNotExist, Value
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
@@ -10,9 +9,7 @@ from rest_framework import serializers
 
 class Player(models.Model):
     name = models.CharField(max_length=50, unique=True)
-    attunement_slots = models.PositiveSmallIntegerField(validators=(MaxValueValidator(limit_value=3),),
-                                                        default=3,
-                                                        blank=True)
+
     copper = models.IntegerField(blank=False,
                                  null=False,
                                  default=0)
