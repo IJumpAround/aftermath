@@ -63,10 +63,12 @@
                         <td>Current Owner:</td>
                         <td>{{ item.player }}</td>
                     </tr>
+                    {% if item.rarity %}
                     <tr>
                         <td>Rarity:</td>
                         <td>{{ item.rarity }}</td>
                     </tr>
+                    {% endif %}
                 </table>
             </div>
             <div class="col-2"></div>

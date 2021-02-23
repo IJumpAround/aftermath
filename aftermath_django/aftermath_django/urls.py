@@ -17,11 +17,7 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 
-# urlpatterns = [
-#     path('polls/', include('polls.urls')),
-#     path('admin/', admin.site.urls),
-#     path('inventory/', include('item_management.urls')),
-# ]
+
 from django.views.generic import TemplateView
 from rest_framework import routers
 

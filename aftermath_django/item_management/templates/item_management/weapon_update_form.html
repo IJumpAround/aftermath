@@ -1,0 +1,11 @@
+{% extends 'item_management/base_template.html' %}
+
+{% block content %}
+    {{form.media}}
+<div>
+<form method="post">{% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Send message">
+</form>
+</div>
+{% endblock %}

@@ -118,6 +118,10 @@ class Item(models.Model):
 
         return BaseSerializer
 
+    def get_absolute_url(self):
+        from django.urls import reverse
+        return reverse('item_management:item', kwargs=dict(pk=self.id, item_type=self._meta.model_name))
+
 
 class Stackable(Item):
     # Potion, Arrows, bolts, etc

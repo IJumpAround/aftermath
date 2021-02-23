@@ -7,7 +7,7 @@ from django.forms import ModelForm
 from django.http import HttpResponseNotFound
 from django.shortcuts import render, get_object_or_404
 from django.utils.log import request_logger
-from django.views.generic import DetailView
+from django.views import generic
 from rest_framework import viewsets, permissions
 from rest_framework.decorators import action, api_view
 from rest_framework.response import Response
@@ -135,7 +135,7 @@ class ViewPaginatorMixin(object):
 def aftermath_index(request):
     data = request.data
     if request.method == 'GET':
-        return render(request, template_name='item_management/items.html')
+        return render(request, template_name='item_management/item_table.html')
     else:
         request_logger.info('get_all_items')
 
@@ -188,15 +188,16 @@ class BaseItemForm(ModelForm):
         if is_attuned and not player or player and player.name == 'Party':
             self.add_error('is_attuned', ValidationError('Must have an owner to be attuned'))
 
+
+class WeaponForm(BaseItemForm):
+
     class Meta:
-        abstract = True
         model = Weapon
         fields = 'name', 'flavor', 'rarity', 'requires_attunement', 'is_attuned', 'player', 'obtained_from',
         'quantity'
 
 
-def generic_item_view(request, item_type: str, pk: int):
-
+def get_model_by_type_string(item_type: str) -> Optional[Item]:
     if item_type.lower() == 'weapon':
         clazz = Weapon
     elif item_type.lower() == 'armor':
@@ -204,9 +205,30 @@ def generic_item_view(request, item_type: str, pk: int):
     elif item_type.lower() == 'stackable':
         clazz = Stackable
     else:
+        clazz = None
+
+    return clazz
+
+
+def generic_item_view(request, item_type: str, pk: int):
+
+    clazz = get_model_by_type_string(item_type)
+
+    if not clazz:
         return HttpResponseNotFound()
 
     item = get_object_or_404(clazz, pk=pk)
 
     return render(request, template_name='item_management/item_template.html', context=dict(item=item))
 
+
+class EditItemView(generic.UpdateView):
+    template_name = 'item_management/weapon_update_form.html'
+
+    class Meta:
+        abstract = True
+
+
+class EditWeaponView(EditItemView):
+    form_class = WeaponForm
+    model = Weapon

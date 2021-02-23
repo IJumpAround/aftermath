@@ -1,10 +1,8 @@
-function format(d) {
-    // `d` is the original data object for the row
-    console.log('formatting')
+function format(row_data) {
     return '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">' +
         '<tr>' +
         '<td>Full Description:</td>' +
-        '<td>' + d.text_description.replace(/(?:\r\n|\r|\n)/g, '<br>') + '</td>' +
+        '<td>' + row_data.text_description.replace(/(?:\r\n|\r|\n)/g, '<br>') + '</td>' +
         '</tr>' +
         '</table>';
 }
@@ -48,17 +46,23 @@ $(document).ready(function () {
                 },
                 {"data": "model_type", visible: false},
                 {
-                    "data": "name", "className": "name_column",
+                    "data": null,
+                    "className": "row-command",
+                    "orderable": false,
+                    "ordering": false,
                     "render": function (data, type, row, meta) {
                         let id = row.id
-                        let model_name = row.model_name
-                        let loc = `/items/${model_name}/${id}`
-                        return `<a href=${loc}>${data}</a>`
-                    }
+                        let view_link = `/items/${row.model_name}/${id}`
+                        let edit_link = `${view_link}/edit`
+
+                        let view_link_display = `<a href=${view_link}><i class="far fa-eye"></i></a>`
+                        let edit_link_display = `<a href=${edit_link}><i class="far fa-edit"></i></a>`
+                        return `${view_link_display} <span style="padding-left: 3px"></span>${edit_link_display}`
+                    },
                 },
+                {"data": "name", "className": "name_column"},
                 {"data": "text_description", visible: false},
                 {"data": "rarity", visible: false},
-                // {"data": "wondrous", visible: false},
                 {
                     "data": "requires_attunement", "className": "attunement_col icon",
                     "render": function (data, type, row, meta) {
@@ -136,10 +140,3 @@ $(document).ready(function () {
         }
     });
 });
-
-
-function call_backend() {
-    fetch('http://localhost:8000/items')
-        .then(response => response.json())
-        .then(data => console.log(data));
-}
