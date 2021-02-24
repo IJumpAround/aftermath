@@ -223,9 +223,6 @@ class Armor(Equippable):
 
 
 class Weapon(Equippable):
-    weapon = models.CharField(max_length=40,
-                              blank=True,
-                              null=True)
     pass
 
     def __str__(self):

@@ -3,3 +3,4 @@
 /.coverage
 .idea/*
 item_management/migrations/*
+static/**

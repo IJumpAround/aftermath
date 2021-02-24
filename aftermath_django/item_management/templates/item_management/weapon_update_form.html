@@ -1,11 +1,25 @@
 {% extends 'item_management/base_template.html' %}
 
+{% block additional_css %}
+    {% load static %}
+        <link rel="stylesheet" type="text/css" href="{% static "item_management/css/edit_item.css" %}">
+
+{% endblock %}
+
 {% block content %}
-    {{form.media}}
 <div>
 <form method="post">{% csrf_token %}
-    {{ form.as_p }}
-    <input type="submit" value="Send message">
+    {% for field in form %}
+    <div class="fieldWrapper">
+        {{ field.errors }}
+        {{ field.label_tag }} {{ field|safe }}
+        {% if field.help_text %}
+        <p class="help">{{ field.help_text|safe }}</p>
+        {% endif %}
+    </div>
+{% endfor %}
+    <input type="submit" class="save-item-button" value="Save Changes">
 </form>
 </div>
+    {{form.media}}
 {% endblock %}

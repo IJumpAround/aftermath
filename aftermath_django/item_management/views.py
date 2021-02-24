@@ -1,9 +1,7 @@
 from functools import reduce
 
-from django import forms
 from django.contrib.auth.models import User, Group
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.forms import ModelForm
 from django.http import HttpResponseNotFound
 from django.shortcuts import render, get_object_or_404
 from django.utils.log import request_logger
@@ -11,8 +9,8 @@ from django.views import generic
 from rest_framework import viewsets, permissions
 from rest_framework.decorators import action, api_view
 from rest_framework.response import Response
-from tinymce.widgets import TinyMCE
 
+from .forms import WeaponForm
 from .models import *
 from .serializers import (UserSerializer, GroupSerializer, PlayerSerializer, ArmorSerializer,
                           RaritySerializer, ItemSlotSerializer, WeaponSerializer, StackableSerializer,
@@ -177,27 +175,8 @@ def aftermath_index(request):
         return Response({'data': items, 'total': total, 'size': len(queryset)})
 
 
-class BaseItemForm(ModelForm):
-    text_description = forms.CharField(widget=TinyMCE(attrs={'cols': 80, 'rows': 30}))
-    flavor = forms.CharField(widget=TinyMCE(attrs={'cols': 10, 'rows': 2}, mce_attrs={'height': 100}))
-
-    def clean(self):
-        cleaned_data = super().clean()
-        is_attuned = cleaned_data.get('is_attuned')
-        player = cleaned_data.get('player')
-        if is_attuned and not player or player and player.name == 'Party':
-            self.add_error('is_attuned', ValidationError('Must have an owner to be attuned'))
-
-
-class WeaponForm(BaseItemForm):
-
-    class Meta:
-        model = Weapon
-        fields = 'name', 'flavor', 'rarity', 'requires_attunement', 'is_attuned', 'player', 'obtained_from',
-        'quantity'
-
-
 def get_model_by_type_string(item_type: str) -> Optional[Item]:
+    """Allows us to provide various item types to the same template"""
     if item_type.lower() == 'weapon':
         clazz = Weapon
     elif item_type.lower() == 'armor':
@@ -211,6 +190,7 @@ def get_model_by_type_string(item_type: str) -> Optional[Item]:
 
 
 def generic_item_view(request, item_type: str, pk: int):
+    """Determines the correct model based on item_type then retrieves the correct instance from the pk"""
 
     clazz = get_model_by_type_string(item_type)
 

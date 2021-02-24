@@ -120,15 +120,15 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'static/'
+STATIC_ROOT = BASE_DIR / 'static'
 STATICFILES_DIRS = [
-    BASE_DIR / 'lib'
+    BASE_DIR / 'item_management/static/'
 ]
 
-STATICFILES_FINDERS = [
-        'django.contrib.staticfiles.finders.FileSystemFinder',
-        'django.contrib.staticfiles.finders.AppDirectoriesFinder'
-    ]
+# STATICFILES_FINDERS = [
+#         'django.contrib.staticfiles.finders.FileSystemFinder',
+#         'django.contrib.staticfiles.finders.AppDirectoriesFinder'
+#     ]
 
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
@@ -144,3 +144,7 @@ CORS_ALLOW_CREDENTIALS = True
 #
 # ]
 CORS_ALLOW_ALL_ORIGINS = True
+
+TINYMCE_JS_URL = STATIC_URL + 'lib/tinymce/tinymce.js'
+TINYMCE_JS_ROOT = str(STATIC_ROOT / 'lib/tinymce')
+TINYMCE_COMPRESSOR = True
