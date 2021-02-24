@@ -1,3 +1,10 @@
 input.save-item-button {
     float: right;
 }
+
+
+ul.checkbox li {
+  border: 1px transparent solid;
+  display:inline-block;
+  width:12em;
+}

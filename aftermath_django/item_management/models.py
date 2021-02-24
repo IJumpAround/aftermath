@@ -89,11 +89,9 @@ class Item(models.Model):
                                blank=False,
                                null=False)
 
-    obtained_from = models.TextField(null=True,
-                                     blank=True)
 
     quantity = models.IntegerField(default=1)
-    value = models.IntegerField(default=None, null=True)
+    value = models.CharField(default=None, null=True, max_length=30)
 
     @classmethod
     def query_common_base_fields(cls):

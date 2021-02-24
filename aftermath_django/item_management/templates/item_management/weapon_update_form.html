@@ -2,24 +2,66 @@
 
 {% block additional_css %}
     {% load static %}
-        <link rel="stylesheet" type="text/css" href="{% static "item_management/css/edit_item.css" %}">
+    <link rel="stylesheet" type="text/css" href="{% static "item_management/css/edit_item.css" %}">
 
 {% endblock %}
 
 {% block content %}
-<div>
-<form method="post">{% csrf_token %}
-    {% for field in form %}
-    <div class="fieldWrapper">
-        {{ field.errors }}
-        {{ field.label_tag }} {{ field|safe }}
-        {% if field.help_text %}
-        <p class="help">{{ field.help_text|safe }}</p>
-        {% endif %}
+
+    <div>
+        <form method="post">{% csrf_token %}
+            {#    {% for field in form %}#}
+            {#    <div class="fieldWrapper">#}
+            {#        {{ field.errors }}#}
+            {#        {{ field.label_tag }} {{ field|safe }}#}
+            {#        {% if field.help_text %}#}
+            {#        <p class="help">{{ field.help_text|safe }}</p>#}
+            {#        {% endif %}#}
+            {#    </div>#}
+            {#{% endfor %}#}
+
+            <div class="fieldWrapper">
+                {{ form.name.label_tag }} {{ form.name }} <span class="field-error"> {{ form.name.errors }} </span>
+            </div>
+
+            <div class="fieldWrapper">
+                {{ form.player.label_tag }} {{ form.player }} <span class="field-error">{{ form.player.errors }}</span>
+            </div>
+
+            <br>
+
+            <div class="fieldWrapper">
+                {{ form.text_description.label_tag }} <span class="field-error">{{ form.player.errors }}</span>
+                {{ form.text_description }}
+            </div>
+
+            <br>
+
+            <div class="fieldWrapper">
+                {{ form.flavor.label_tag }} <span class="field-error">{{ form.flavor.errors }}</span>
+                {{ form.flavor }}
+            </div>
+
+            <br>
+
+            <div class="field-options-wrapper">
+                <ul class="checkbox">
+                    {% if form.is_equipped != None %}
+                        <li> {{ form.is_equipped }} {{ form.is_equipped.label_tag }}</li>
+                    {% endif %}
+                    {% if form.is_attuned != None %}
+                        <li> {{ form.is_attuned }} {{ form.is_attuned.label_tag }}</li>
+                    {% endif %}
+                    {% if form.requires_attunement != None %}
+                        <li> {{ form.requires_attunement }} {{ form.requires_attunement.label_tag }}</li>
+                    {% endif %}
+                </ul>
+
+            </div>
+
+            <input type="submit" class="save-item-button" value="Save Changes">
+
+        </form>
     </div>
-{% endfor %}
-    <input type="submit" class="save-item-button" value="Save Changes">
-</form>
-</div>
-    {{form.media}}
+    {{ form.media }}
 {% endblock %}
