@@ -89,7 +89,6 @@ class Item(models.Model):
                                blank=False,
                                null=False)
 
-
     quantity = models.IntegerField(default=1)
     value = models.CharField(default=None, null=True, max_length=30)
 

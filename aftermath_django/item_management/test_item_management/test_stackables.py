@@ -9,7 +9,13 @@ POTION_NAME = 'Potion of Healing'
 ARROW_TYPE = 'ammunition'
 ARROW_NAME = 'Wooden Arrow'
 
+
 class StackableModelTest(TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        Player.get_default()
+        super(StackableModelTest, cls).setUpClass()
 
     def setUp(self) -> None:
         self.player = Player.objects.create(name="Nick")

@@ -1,4 +1,8 @@
+from django import forms
 from django.contrib import admin
+from django.db.models import TextField
+from django.forms import models
+from tinymce.widgets import TinyMCE
 
 from .models import Player, Weapon, WeaponTrait, Armor, ArmorTrait, ItemSlot, Rarity, Tier, Stackable, TraitTemplate, \
     ArmorTraitTemplate, WeaponTraitTemplate
@@ -34,8 +38,29 @@ class ItemSlotAdmin(admin.ModelAdmin):
     ]
 
 
+class ProjectAdminForm(forms.ModelForm):
+    class Meta:
+        model = Weapon
+        fields = '__all__'
+        widgets = {
+            'text_description': TinyMCE(mce_attrs={'width': '75%', 'height': 300}),
+            'flavor': TinyMCE(mce_attrs={'width': '50%', 'height': 200})
+        }
+
+
+class WeaponTraitInline(admin.TabularInline):
+    model = WeaponTrait
+    extra = 0
+
+
 @admin.register(Weapon)
 class WeaponAdmin(admin.ModelAdmin):
+    inlines = [
+        WeaponTraitInline,
+    ]
+
+    form = ProjectAdminForm
+
     fieldsets = [('Description', {'fields': ['name', 'flavor', 'text_description']}),
                  ('Misc', {'fields': ['rarity', 'item_slot']}),
                  ('Owner', {'fields': ['player']})
