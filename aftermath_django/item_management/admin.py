@@ -82,16 +82,17 @@ class ArmorTraitTemplateAdmin(TraitTemplateAdmin):
 
 @admin.register(WeaponTraitTemplate)
 class WeaponTraitTemplateAdmin(TraitTemplateAdmin):
+    """Makes sure weapon_type gets added to fieldsets"""
     fieldsets = [(None, {'fields': ('weapon_type',)})]
-    fieldsets.insert(0, TraitTemplateAdmin.fieldsets[0])
-    fieldsets.insert(1, TraitTemplateAdmin.fieldsets[1])
+    for i, fieldset in enumerate(TraitTemplateAdmin.fieldsets):
+        fieldsets.insert(i, fieldset)
 
 
-@admin.register(WeaponTrait)
-class WeaponTraitAdmin(admin.ModelAdmin):
-    list_display = ('template',)
+class TraitInstanceBaseAdmin(admin.ModelAdmin):
+    list_display = ('__str__', 'template', 'x_value')
 
     def get_form(self, request, obj=None, **kwargs):
+        """Make templates selectable, but not editable from this page"""
         form = super().get_form(request, obj, **kwargs)
 
         non_editable = ['template', 'item']
@@ -113,15 +114,14 @@ class WeaponTraitAdmin(admin.ModelAdmin):
         return fieldsets
 
 
-@admin.register(ArmorTrait)
-class ArmorTraitAdmin(admin.ModelAdmin):
-    fieldsets = [('Description', {'fields': ['template', 'x_value']}),
-                 (None, {'fields': ['item']})
-                 ]
-    list_display = ('template',)
+@admin.register(WeaponTrait)
+class WeaponTraitAdmin(TraitInstanceBaseAdmin):
+    pass
 
-    class Media:
-        js = ('item_management/trait_x_value_disable.js',)
+
+@admin.register(ArmorTrait)
+class ArmorTraitAdmin(TraitInstanceBaseAdmin):
+    pass
 
 
 admin.site.register(Player)

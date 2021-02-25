@@ -336,7 +336,6 @@ class TraitInstanceBase(models.Model, TraitNameFormatterMixin):
         elif self.template.scaling_trait and self.x_value is None:
             raise ValidationError('This trait scales, please select an x_value', {'x_value': self.x_value})
 
-
     @classmethod
     def create_trait_from_template(cls, template: Union[TraitTemplate, int], item: Union[int, Item],
                                    **kwargs) -> 'TraitInstanceBase':
@@ -385,7 +384,6 @@ class ArmorTrait(TraitInstanceBase):
 
 class WeaponTrait(TraitInstanceBase):
     template = models.ForeignKey(WeaponTraitTemplate, on_delete=models.CASCADE)
-
 
     item = models.ForeignKey(Weapon, on_delete=models.CASCADE,
                              null=True,
