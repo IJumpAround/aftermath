@@ -1,24 +1,48 @@
 from typing import Optional
 
-from django import forms
 from django.contrib import admin
-from tinymce.widgets import TinyMCE
 
+from .forms import ProjectAdminForm
 from .models import Player, Weapon, WeaponTrait, Armor, ArmorTrait, ItemSlot, Rarity, Tier, Stackable, \
     ArmorTraitTemplate, WeaponTraitTemplate, TraitInstanceBase
 
 
+class EquippableItemAdminBase(admin.ModelAdmin):
+    list_display = ('name', 'rarity', 'item_slot', 'requires_attunement', 'is_attuned', 'is_equipped', 'player')
+    list_editable = ('requires_attunement', 'is_attuned', 'player', 'item_slot', 'is_attuned', 'is_equipped', 'rarity')
+
+    def get_fieldsets(self, request, obj=None):
+        item_type_name = self.model.__name__
+        return [
+            (item_type_name, {'fields': ['name', 'player', 'flavor', 'text_description']}),
+            ('Misc', {'fields': ['rarity', 'item_slot', 'is_attuned', 'is_equipped', 'requires_attunement']}),
+        ]
+
+
+class TraitInlineBase(admin.TabularInline):
+    extra = 0
+    fields = ['template']
+    readonly_fields = ('template',)
+
+
+class WeaponTraitInline(TraitInlineBase):
+    model = WeaponTrait
+
+
+class ArmorTraitInline(TraitInlineBase):
+    model = ArmorTrait
+
+
 @admin.register(Armor)
-class ArmorAdmin(admin.ModelAdmin):
-    fieldsets = [
-        ('Description', {'fields': ['name', 'flavor', 'text_description']}),
-        (None, {'fields': ['rarity']}),
-        (None, {'fields': ['player']}),
-        (None, {'fields': ['item_slot']})
-        # ('Date information', {'fields': ['pub_date']})
-    ]
-    list_display = ('name', 'rarity', 'item_slot', 'requires_attunement', 'is_attuned', 'player')
-    list_editable = ('requires_attunement', 'is_attuned', 'player', 'item_slot', 'rarity')
+class ArmorAdmin(EquippableItemAdminBase):
+    inlines = [ArmorTraitInline]
+    form = ProjectAdminForm
+
+
+@admin.register(Weapon)
+class WeaponAdmin(EquippableItemAdminBase):
+    inlines = [WeaponTraitInline]
+    form = ProjectAdminForm
 
 
 @admin.register(Tier)
@@ -36,39 +60,6 @@ class ItemSlotAdmin(admin.ModelAdmin):
     fieldsets = [
         ('Slot', {'fields': ['slot_name']}),
     ]
-
-
-class ProjectAdminForm(forms.ModelForm):
-    class Meta:
-        model = Weapon
-        fields = '__all__'
-        widgets = {
-            'text_description': TinyMCE(mce_attrs={'width': '75%', 'height': 300}),
-            'flavor': TinyMCE(mce_attrs={'width': '50%', 'height': 200})
-        }
-
-
-class WeaponTraitInline(admin.TabularInline):
-    model = WeaponTrait
-    extra = 0
-    fields = ['template']
-    readonly_fields = ('template',)
-
-
-@admin.register(Weapon)
-class WeaponAdmin(admin.ModelAdmin):
-    inlines = [
-        WeaponTraitInline,
-    ]
-
-    form = ProjectAdminForm
-
-    fieldsets = [('Weapon', {'fields': ['name', 'player', 'flavor', 'text_description']}),
-                 ('Misc', {'fields': ['rarity', 'item_slot', 'is_attuned', 'is_equipped', 'requires_attunement']}),
-
-                 ]
-    list_display = ('name', 'rarity', 'item_slot', 'requires_attunement', 'is_attuned', 'is_equipped', 'player')
-    list_editable = ('requires_attunement', 'is_attuned', 'player', 'item_slot', 'is_attuned', 'is_equipped', 'rarity')
 
 
 @admin.register(Stackable)
@@ -98,7 +89,6 @@ class WeaponTraitTemplateAdmin(TraitTemplateAdmin):
 
 @admin.register(WeaponTrait)
 class WeaponTraitAdmin(admin.ModelAdmin):
-
     list_display = ('template',)
 
     def get_form(self, request, obj=None, **kwargs):
@@ -132,8 +122,6 @@ class ArmorTraitAdmin(admin.ModelAdmin):
 
     class Media:
         js = ('item_management/trait_x_value_disable.js',)
-
-
 
 
 admin.site.register(Player)

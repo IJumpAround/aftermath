@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError
 from django.forms import ModelForm
 from tinymce.widgets import TinyMCE
 
-from item_management.models import Weapon
+from item_management.models import Weapon, Item
 
 
 class BaseItemForm(ModelForm):
@@ -27,3 +27,13 @@ class WeaponForm(BaseItemForm):
         exclude = 'obtained_from',
         # fields = 'name', 'flavor', 'rarity', 'requires_attunement', 'is_attuned', 'player', 'obtained_from',
         # 'quantity'
+
+
+class ProjectAdminForm(forms.ModelForm):
+    class Meta:
+        model = Item
+        fields = '__all__'
+        widgets = {
+            'text_description': TinyMCE(mce_attrs={'width': '75%', 'height': 300}),
+            'flavor': TinyMCE(mce_attrs={'width': '50%', 'height': 200})
+        }

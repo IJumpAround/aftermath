@@ -68,7 +68,6 @@ def is_attuned_validator(item):
         raise ValidationError("Must have an owner to be attuned", params={item.is_attuned: 'error'})
 
 
-
 class Item(models.Model):
 
     def clean(self):
@@ -322,7 +321,7 @@ class TraitNameFormatterMixin:
         return trait_name
 
 
-class TraitInstanceBase(models.Model):
+class TraitInstanceBase(models.Model, TraitNameFormatterMixin):
     x_value = models.PositiveSmallIntegerField(null=True,
                                                blank=True)
     template: TraitTemplate
@@ -373,7 +372,7 @@ class TraitInstanceBase(models.Model):
         return clazz.objects.create(template=template, item_id=item, **kwargs)
 
 
-class ArmorTrait(TraitInstanceBase, TraitNameFormatterMixin):
+class ArmorTrait(TraitInstanceBase):
     template = models.ForeignKey(ArmorTraitTemplate, on_delete=models.CASCADE)
     item = models.ForeignKey(Armor, on_delete=models.SET_NULL,
                              null=True,
@@ -384,7 +383,7 @@ class ArmorTrait(TraitInstanceBase, TraitNameFormatterMixin):
         return f"{super().to_string()} on {self.item}"
 
 
-class WeaponTrait(TraitInstanceBase, TraitNameFormatterMixin):
+class WeaponTrait(TraitInstanceBase):
     template = models.ForeignKey(WeaponTraitTemplate, on_delete=models.CASCADE)
 
 
