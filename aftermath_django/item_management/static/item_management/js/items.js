@@ -53,7 +53,7 @@ $(document).ready(function () {
                     "render": function (data, type, row, meta) {
                         let id = row.id
                         let view_link = `/items/${row.model_name}/${id}`
-                        let edit_link = `${view_link}/edit`
+                        let edit_link = `/admin/item_management/${row.model_name}/${id}/change`
 
                         let view_link_display = `<a href=${view_link}><i class="far fa-eye"></i></a>`
                         let edit_link_display = `<a href=${edit_link}><i class="far fa-edit"></i></a>`

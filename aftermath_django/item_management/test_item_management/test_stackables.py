@@ -37,7 +37,6 @@ class StackableModelTest(TestCase):
         return Stackable.objects.create(stackable_type=ARROW_TYPE, name=ARROW_NAME, quantity=amount,
                                         player_id=player_id)
 
-
     def test_loose_stackable_count(self):
         nicks_potions = self.create_potions(self.player, 20)
         loose_potions = self.create_potions(None, 5)

@@ -1,11 +1,11 @@
+from typing import Optional
+
 from django import forms
 from django.contrib import admin
-from django.db.models import TextField
-from django.forms import models
 from tinymce.widgets import TinyMCE
 
-from .models import Player, Weapon, WeaponTrait, Armor, ArmorTrait, ItemSlot, Rarity, Tier, Stackable, TraitTemplate, \
-    ArmorTraitTemplate, WeaponTraitTemplate
+from .models import Player, Weapon, WeaponTrait, Armor, ArmorTrait, ItemSlot, Rarity, Tier, Stackable, \
+    ArmorTraitTemplate, WeaponTraitTemplate, TraitInstanceBase
 
 
 @admin.register(Armor)
@@ -51,6 +51,8 @@ class ProjectAdminForm(forms.ModelForm):
 class WeaponTraitInline(admin.TabularInline):
     model = WeaponTrait
     extra = 0
+    fields = ['template']
+    readonly_fields = ('template',)
 
 
 @admin.register(Weapon)
@@ -61,12 +63,12 @@ class WeaponAdmin(admin.ModelAdmin):
 
     form = ProjectAdminForm
 
-    fieldsets = [('Description', {'fields': ['name', 'flavor', 'text_description']}),
-                 ('Misc', {'fields': ['rarity', 'item_slot']}),
-                 ('Owner', {'fields': ['player']})
+    fieldsets = [('Weapon', {'fields': ['name', 'player', 'flavor', 'text_description']}),
+                 ('Misc', {'fields': ['rarity', 'item_slot', 'is_attuned', 'is_equipped', 'requires_attunement']}),
+
                  ]
-    list_display = ('name', 'rarity', 'item_slot', 'requires_attunement', 'is_attuned', 'player')
-    list_editable = ('requires_attunement', 'is_attuned', 'player', 'item_slot', 'rarity')
+    list_display = ('name', 'rarity', 'item_slot', 'requires_attunement', 'is_attuned', 'is_equipped', 'player')
+    list_editable = ('requires_attunement', 'is_attuned', 'player', 'item_slot', 'is_attuned', 'is_equipped', 'rarity')
 
 
 @admin.register(Stackable)
@@ -89,15 +91,15 @@ class ArmorTraitTemplateAdmin(TraitTemplateAdmin):
 
 @admin.register(WeaponTraitTemplate)
 class WeaponTraitTemplateAdmin(TraitTemplateAdmin):
-    pass
+    fieldsets = [(None, {'fields': ('weapon_type',)})]
+    fieldsets.insert(0, TraitTemplateAdmin.fieldsets[0])
+    fieldsets.insert(1, TraitTemplateAdmin.fieldsets[1])
 
 
 @admin.register(WeaponTrait)
 class WeaponTraitAdmin(admin.ModelAdmin):
-    fieldsets = [('Description', {'fields': ['template', 'weapon_type', 'x_value']}),
-                 (None, {'fields': ['item']})]
 
-    # list_display = ('template',)
+    list_display = ('template',)
 
     def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)
@@ -110,8 +112,15 @@ class WeaponTraitAdmin(admin.ModelAdmin):
             field.widget.can_delete_related = False
         return form
 
-    class Media:
-        js = ('item_management/trait_x_value_disable.js',)
+    def get_fieldsets(self, request, obj: Optional[TraitInstanceBase] = None):
+        """Exclude x_value for traits that are not scalable"""
+        fieldsets = [('Description', {'fields': ['template']}),
+                     (None, {'fields': ['item']})]
+
+        if obj and obj.template.scaling_trait:
+            fieldsets[0][1]['fields'].append('x_value')
+
+        return fieldsets
 
 
 @admin.register(ArmorTrait)
@@ -123,6 +132,8 @@ class ArmorTraitAdmin(admin.ModelAdmin):
 
     class Media:
         js = ('item_management/trait_x_value_disable.js',)
+
+
 
 
 admin.site.register(Player)

@@ -63,6 +63,12 @@ class Rarity(models.Model):
         return self.rarity_level
 
 
+def is_attuned_validator(item):
+    if item.is_attuned and (item.player is None or item.player.name == 'Party'):
+        raise ValidationError("Must have an owner to be attuned", params={item.is_attuned: 'error'})
+
+
+
 class Item(models.Model):
 
     def clean(self):
@@ -87,10 +93,12 @@ class Item(models.Model):
                                on_delete=models.PROTECT,
                                default=Player.get_default,
                                blank=False,
-                               null=False)
+                               null=False,
+                               verbose_name='Owner')
 
     quantity = models.IntegerField(default=1)
     value = models.CharField(default=None, null=True, max_length=30)
+
 
     @classmethod
     def query_common_base_fields(cls):
@@ -204,6 +212,7 @@ class Equippable(Item):
     def clean(self):
         if self.is_equipped and not (self.player or self.player == 'Party'):
             raise ValidationError("Cannot be equipped without an owner!", params={self.is_equipped})
+        super(Equippable, self).clean()
 
     class Meta:
         abstract = True
@@ -300,6 +309,10 @@ class WeaponTraitTemplate(TraitTemplate):
 
 
 class TraitNameFormatterMixin:
+    template: TraitTemplate
+    regex: re.Pattern
+    x_value: Optional[int]
+
     def to_string(self):
         template = self.template
         trait_name = template.trait_name
@@ -309,15 +322,21 @@ class TraitNameFormatterMixin:
         return trait_name
 
 
-# TODO x_value is not constrained in the admin panel, null x_value can be assigned to scalable traits
 class TraitInstanceBase(models.Model):
     x_value = models.PositiveSmallIntegerField(null=True,
                                                blank=True)
-
+    template: TraitTemplate
     regex = re.compile('\(.*(X).*\)')
 
     class Meta:
         abstract = True
+
+    def clean(self):
+        if not self.template.scaling_trait and self.x_value is not None:
+            raise ValidationError('This trait does not scale, please leave x_value blank', {'x_value': self.x_value})
+        elif self.template.scaling_trait and self.x_value is None:
+            raise ValidationError('This trait scales, please select an x_value', {'x_value': self.x_value})
+
 
     @classmethod
     def create_trait_from_template(cls, template: Union[TraitTemplate, int], item: Union[int, Item],
@@ -367,10 +386,7 @@ class ArmorTrait(TraitInstanceBase, TraitNameFormatterMixin):
 
 class WeaponTrait(TraitInstanceBase, TraitNameFormatterMixin):
     template = models.ForeignKey(WeaponTraitTemplate, on_delete=models.CASCADE)
-    weapon_type = models.CharField(blank=False,
-                                   choices=WeaponType.choices,
-                                   max_length=10,
-                                   default=None)
+
 
     item = models.ForeignKey(Weapon, on_delete=models.CASCADE,
                              null=True,
