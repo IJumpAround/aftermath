@@ -199,8 +199,11 @@ class Stackable(Item):
             target_stack.refresh_from_db()
             return target_stack
 
+    def name_with_quantity(self):
+        return f"{self.name} x {self.quantity}"
+
     def __str__(self):
-        return f"{self.name} x {self.quantity}: {self.player}"
+        return f"{self.name_with_quantity()} {self.player}"
 
 
 class Equippable(Item):
@@ -211,6 +214,9 @@ class Equippable(Item):
     def clean(self):
         if self.is_equipped and not (self.player or self.player == 'Party'):
             raise ValidationError("Cannot be equipped without an owner!", params={self.is_equipped})
+        elif not self.requires_attunement and self.is_attuned:
+            self.is_attuned = False
+            print(self.is_attuned)
         super(Equippable, self).clean()
 
     class Meta:

@@ -13,9 +13,12 @@ class BaseItemForm(ModelForm):
     def clean(self):
         cleaned_data = super().clean()
         is_attuned = cleaned_data.get('is_attuned')
+        requires_attunement = cleaned_data.get('requires_attunement')
         player = cleaned_data.get('player')
         if is_attuned and not (player or player.name == 'Party'):
             self.add_error('is_attuned', ValidationError('Must have an owner to be attuned'))
+        elif not requires_attunement and is_attuned:
+            print(is_attuned)
 
 
 class WeaponForm(BaseItemForm):
@@ -29,11 +32,12 @@ class WeaponForm(BaseItemForm):
         # 'quantity'
 
 
-class ProjectAdminForm(forms.ModelForm):
+class MceTextAdminForm(forms.ModelForm):
     class Meta:
         model = Item
         fields = '__all__'
         widgets = {
             'text_description': TinyMCE(mce_attrs={'width': '75%', 'height': 300}),
+            'description': TinyMCE(mce_attrs={'width': '75%', 'height': 300}),
             'flavor': TinyMCE(mce_attrs={'width': '50%', 'height': 200})
         }

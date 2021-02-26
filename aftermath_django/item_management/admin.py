@@ -2,14 +2,31 @@ from typing import Optional
 
 from django.contrib import admin
 
-from .forms import ProjectAdminForm
+from .forms import MceTextAdminForm
 from .models import Player, Weapon, WeaponTrait, Armor, ArmorTrait, ItemSlot, Rarity, Tier, Stackable, \
     ArmorTraitTemplate, WeaponTraitTemplate, TraitInstanceBase
 
 
-class EquippableItemAdminBase(admin.ModelAdmin):
+class MyAdminBase(admin.ModelAdmin):
+    form = MceTextAdminForm
+
+    def get_form(self, request, obj=None, **kwargs):
+        """Make related fields selectable, but not editable"""
+        form = super().get_form(request, obj, **kwargs)
+
+        for field_name in form.base_fields:
+            field = form.base_fields[field_name]
+            if hasattr(field, 'to_field_name'):
+                print(field)
+                field.widget.can_add_related = True
+                field.widget.can_change_related = False
+                field.widget.can_delete_related = False
+        return form
+
+
+class EquippableItemAdminBase(MyAdminBase):
     list_display = ('name', 'rarity', 'item_slot', 'requires_attunement', 'is_attuned', 'is_equipped', 'player')
-    list_editable = ('requires_attunement', 'is_attuned', 'player', 'item_slot', 'is_attuned', 'is_equipped', 'rarity')
+    list_editable = ('requires_attunement', 'is_attuned', 'is_equipped')
 
     def get_fieldsets(self, request, obj=None):
         item_type_name = self.model.__name__
@@ -36,17 +53,17 @@ class ArmorTraitInline(TraitInlineBase):
 @admin.register(Armor)
 class ArmorAdmin(EquippableItemAdminBase):
     inlines = [ArmorTraitInline]
-    form = ProjectAdminForm
+    form = MceTextAdminForm
 
 
 @admin.register(Weapon)
 class WeaponAdmin(EquippableItemAdminBase):
     inlines = [WeaponTraitInline]
-    form = ProjectAdminForm
+    form = MceTextAdminForm
 
 
 @admin.register(Tier)
-class TierAdmin(admin.ModelAdmin):
+class TierAdmin(MyAdminBase):
     fieldsets = [
         ('Level', {'fields': ['level']}),
         ('Description', {'fields': ['description']}),
@@ -63,13 +80,14 @@ class ItemSlotAdmin(admin.ModelAdmin):
 
 
 @admin.register(Stackable)
-class StackableAdmin(admin.ModelAdmin):
+class StackableAdmin(MyAdminBase):
+    list_display = ('name_with_quantity', 'player',)
     fieldsets = [('Description', {'fields': ['name', 'text_description', 'stackable_type']}),
                  ('Owner', {'fields': ['player', 'quantity']})
                  ]
 
 
-class TraitTemplateAdmin(admin.ModelAdmin):
+class TraitTemplateAdmin(MyAdminBase):
     fieldsets = [('Description', {'fields': ['trait_name', 'description']}),
                  (None, {'fields': ['tier', 'scaling_trait']}),
                  ]
@@ -88,20 +106,8 @@ class WeaponTraitTemplateAdmin(TraitTemplateAdmin):
         fieldsets.insert(i, fieldset)
 
 
-class TraitInstanceBaseAdmin(admin.ModelAdmin):
+class TraitInstanceBaseAdmin(MyAdminBase):
     list_display = ('__str__', 'template', 'x_value')
-
-    def get_form(self, request, obj=None, **kwargs):
-        """Make templates selectable, but not editable from this page"""
-        form = super().get_form(request, obj, **kwargs)
-
-        non_editable = ['template', 'item']
-        for key in non_editable:
-            field = form.base_fields[key]
-            field.widget.can_add_related = True
-            field.widget.can_change_related = False
-            field.widget.can_delete_related = False
-        return form
 
     def get_fieldsets(self, request, obj: Optional[TraitInstanceBase] = None):
         """Exclude x_value for traits that are not scalable"""
@@ -124,5 +130,9 @@ class ArmorTraitAdmin(TraitInstanceBaseAdmin):
     pass
 
 
-admin.site.register(Player)
+@admin.register(Player)
+class PlayerAdmin(MyAdminBase):
+    list_display = ('name', )
+
+
 admin.site.register(Rarity)
