@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, reverse
 
 from item_management.views import generic_item_view, EditWeaponView
 from item_management import views
@@ -8,4 +8,5 @@ urlpatterns = [
     path('', views.aftermath_index, name='items'),
     path('<str:item_type>/<int:pk>/', generic_item_view, name='item'),
     path('weapon/<int:pk>/edit', EditWeaponView.as_view(), name='edit')
+
 ]

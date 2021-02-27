@@ -52,9 +52,10 @@ $(document).ready(function () {
                     "ordering": false,
                     "render": function (data, type, row, meta) {
                         let id = row.id
-                        let view_link = `/items/${row.model_name}/${id}`
-                        let edit_link = `/admin/item_management/${row.model_name}/${id}/change`
+                        let view_link = `${BACKEND_POST_URL}${row.model_name}/${id}`
+                        let edit_link = `${ITEM_ADMIN_ROOT}${row.model_name}/${id}/change`
 
+                        console.log(view_link)
                         let view_link_display = `<a href=${view_link}><i class="far fa-eye"></i></a>`
                         let edit_link_display = `<a href=${edit_link}><i class="far fa-edit"></i></a>`
                         return `${view_link_display} <span style="padding-left: 3px"></span>${edit_link_display}`
@@ -88,7 +89,7 @@ $(document).ready(function () {
 
         ajax: {
 
-            url: 'http://127.0.0.1:8000/items/',
+            url: BACKEND_POST_URL,
             "contentType": 'application/json',
             "headers": {
                 'X-CSRFToken': csrftoken

@@ -36,6 +36,10 @@
     <script src="{% static "lib/jquery/js/jquery-3.5.1.min.js" %} "></script>
     <script src="{% static "lib/bootstrap/js/bootstrap.min.js" %} "></script>
     <script type="text/javascript" src="{% static "lib/DataTables/datatables.min.js" %} "></script>
+    {% load admin_urls %}
+    <script>let BACKEND_POST_URL = "{% url 'item_management:items' %}";
+            let ITEM_ADMIN_ROOT = "{% url 'admin:app_list' app_label='item_management' %}";
+    </script>
     <script type="text/javascript" src="{% static "item_management/js/items.js" %}"></script>
 {% endblock scripts %}
 

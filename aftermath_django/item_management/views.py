@@ -1,14 +1,15 @@
+import json
 from functools import reduce
 
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User, Group
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.http import HttpResponseNotFound
+from django.http import HttpResponseNotFound, JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.utils.log import request_logger
 from django.views import generic
 from rest_framework import viewsets, permissions
-from rest_framework.decorators import action, api_view
-from rest_framework.response import Response
+from rest_framework.decorators import action
 
 from .forms import WeaponForm
 from .models import *
@@ -129,15 +130,14 @@ class ViewPaginatorMixin(object):
         return data
 
 
-@api_view(("GET", "POST"))
+@login_required()
 def aftermath_index(request):
-    data = request.data
     if request.method == 'GET':
         return render(request, template_name='item_management/item_table.html')
     else:
         request_logger.info('get_all_items')
 
-        body = data
+        body = json.loads(request.body)
 
         length = int(body.get('length', 25))
         start = int(body.get('start', 0)) // int(length)
@@ -172,7 +172,7 @@ def aftermath_index(request):
         queryset = queryset[start: length]
 
         items = BaseItemSerializer(queryset, many=True, context={'request': request}).data
-        return Response({'data': items, 'total': total, 'size': len(queryset)})
+        return JsonResponse({'data': items, 'total': total, 'size': len(queryset)})
 
 
 def get_model_by_type_string(item_type: str) -> Optional[Item]:
@@ -212,3 +212,4 @@ class EditItemView(generic.UpdateView):
 class EditWeaponView(EditItemView):
     form_class = WeaponForm
     model = Weapon
+

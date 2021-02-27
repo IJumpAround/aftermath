@@ -17,8 +17,6 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 
-
-from django.views.generic import TemplateView
 from rest_framework import routers
 
 from aftermath_django import settings
@@ -39,11 +37,11 @@ router.register(r'weapons', views.WeaponViewSet)
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
     # path('/', include('')) # login page here
-    path('', TemplateView.as_view(template_name='item_management/index.html')),
+    path('', include('item_management.urls'), name='item_management'),
     path('api/', include(router.urls)),
-    path('admin/', admin.site.urls),
+    path('admin/', admin.site.urls, name='admin'),
+    path('accounts/', include('django.contrib.auth.urls')),
     path('tinymce/', include('tinymce.urls')),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    path('items/', include('item_management.urls')),
     path('polls/', include('polls.urls')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
